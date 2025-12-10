@@ -6,11 +6,13 @@ import OnboardingScreen from './components/OnboardingScreen';
 import TutorialsPanel from './components/TutorialsPanel';
 import BusinessIdeasPanel from './components/BusinessIdeasPanel';
 import PersonalizationPanel from './components/PersonalizationPanel';
+import ConversationsList from './components/ConversationsList';
 import { isAuthenticated, getCurrentUser } from './services/authService';
 import { initTheme } from './services/themeService';
 import { OnboardingData } from './types/onboarding';
+import { createThread } from './services/threadService';
 
-type ViewMode = 'agents' | 'chat' | 'tutorials' | 'ideas' | 'personalization';
+type ViewMode = 'agents' | 'chat' | 'tutorials' | 'ideas' | 'personalization' | 'conversations';
 
 const App: React.FC = () => {
   const [authenticated, setAuthenticated] = useState<boolean>(false);
@@ -18,6 +20,7 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewMode>('agents');
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
+  const [currentThreadId, setCurrentThreadId] = useState<string | null>(null);
 
   useEffect(() => {
     // Inicializar tema
@@ -64,12 +67,35 @@ const App: React.FC = () => {
 
   const handleSelectAgent = (agentId: string) => {
     setSelectedAgent(agentId);
+    // Criar nova thread ao selecionar agente
+    const newThread = createThread();
+    setCurrentThreadId(newThread.id);
     setCurrentView('chat');
   };
 
   const handleBackToAgents = () => {
     setCurrentView('agents');
     setSelectedAgent(null);
+    setCurrentThreadId(null);
+  };
+
+  const handleViewConversations = () => {
+    setCurrentView('conversations');
+  };
+
+  const handleSelectThread = (threadId: string) => {
+    setCurrentThreadId(threadId);
+    setCurrentView('chat');
+  };
+
+  const handleCreateNewConversation = () => {
+    const newThread = createThread();
+    setCurrentThreadId(newThread.id);
+    setCurrentView('chat');
+  };
+
+  const handleThreadChange = (threadId: string) => {
+    setCurrentThreadId(threadId);
   };
 
   const handleViewHistory = (sessionId: string) => {
@@ -143,7 +169,7 @@ const App: React.FC = () => {
     return (
       <AgentsScreen 
         onSelectAgent={handleSelectAgent} 
-        onViewHistory={handleViewHistory}
+        onViewHistory={handleViewConversations}
         onViewTutorials={handleViewTutorials}
         onViewIdeas={handleViewIdeas}
         onViewPersonalization={handleViewPersonalization}
@@ -151,11 +177,28 @@ const App: React.FC = () => {
     );
   }
 
+  if (currentView === 'conversations') {
+    return (
+      <ConversationsList
+        onSelectThread={handleSelectThread}
+        onCreateNew={handleCreateNewConversation}
+        currentThreadId={currentThreadId}
+      />
+    );
+  }
+
+  const handleViewConversationsFromChat = () => {
+    setCurrentView('conversations');
+  };
+
   return (
-    <div className="min-h-screen bg-slate-900 dark:bg-slate-950 transition-colors">
+    <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors">
       <ChatInterface 
         agentId={selectedAgent} 
         onBack={handleBackToAgents}
+        threadId={currentThreadId}
+        onThreadChange={handleThreadChange}
+        onViewConversations={handleViewConversationsFromChat}
       />
     </div>
   );

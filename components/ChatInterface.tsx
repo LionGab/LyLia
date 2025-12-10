@@ -8,6 +8,7 @@ import { getCurrentUser } from '../services/authService';
 import { checkAndMigrate } from '../services/migrationService';
 import { initTheme } from '../services/themeService';
 import { OnboardingData } from '../types/onboarding';
+import { getThreadMessages, saveThreadMessages, createThread } from '../services/threadService';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from './TypingIndicator';
 import ChatHeader from './ChatHeader';
@@ -30,9 +31,12 @@ const fileToBase64 = (file: File): Promise<string> => {
 interface ChatInterfaceProps {
   agentId?: string | null;
   onBack?: () => void;
+  threadId?: string | null;
+  onThreadChange?: (threadId: string) => void;
+  onViewConversations?: () => void;
 }
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId, onThreadChange, onViewConversations }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -43,23 +47,22 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
   const [copywriterResponse, setCopywriterResponse] = useState<CopywriterResponseType | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | undefined>(undefined);
+  const [currentThreadId, setCurrentThreadId] = useState<string | null>(threadId || null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioRecorderRef = useRef<MediaRecorder | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
 
-  // Get user-specific storage key
-  const getStorageKey = (): string => {
-    const user = getCurrentUser();
-    return user ? `erl_lia_chat_history_${user.email}` : 'erl_lia_chat_history_v1';
-  };
-
-  // Load history from localStorage on mount
+  // Load history from thread or create new thread
   useEffect(() => {
-    initTheme(); // Initialize theme
-    checkAndMigrate(); // Migrate old data if needed
+    initTheme();
+    checkAndMigrate();
     
-    // Load onboarding data first
+    // Load onboarding data
     const user = getCurrentUser();
     if (user) {
       const savedOnboarding = localStorage.getItem(`erl_lia_onboarding_${user.email}`);
@@ -73,26 +76,34 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
       }
     }
     
-    const storageKey = getStorageKey();
-    const savedHistory = localStorage.getItem(storageKey);
-    if (savedHistory) {
-      try {
-        const parsedHistory = JSON.parse(savedHistory);
-        // Só carregar histórico se tiver mais de 1 mensagem (não apenas a mensagem de boas-vindas)
-        if (parsedHistory.length > 1) {
-          setMessages(parsedHistory);
-        } else {
-          initializeWelcomeMessage(true);
-        }
-      } catch (error) {
-        console.error("Failed to parse chat history:", error);
+    // Load thread messages or create new thread
+    if (threadId) {
+      const threadMessages = getThreadMessages(threadId);
+      if (threadMessages.length > 0) {
+        setMessages(threadMessages);
+      } else {
         initializeWelcomeMessage(true);
       }
-    } else {
+      setCurrentThreadId(threadId);
+    } else if (!currentThreadId) {
+      // Create new thread
+      const newThread = createThread();
+      setCurrentThreadId(newThread.id);
+      if (onThreadChange) {
+        onThreadChange(newThread.id);
+      }
       initializeWelcomeMessage(true);
     }
+    
     setIsInitialized(true);
-  }, []);
+  }, [threadId]);
+
+  // Save messages to thread whenever they change
+  useEffect(() => {
+    if (isInitialized && currentThreadId && messages.length > 0) {
+      saveThreadMessages(currentThreadId, messages);
+    }
+  }, [messages, isInitialized, currentThreadId]);
 
   const initializeWelcomeMessage = (useOnboarding: boolean = true) => {
     // Criar mensagem de boas-vindas personalizada baseada no onboarding
@@ -140,7 +151,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
 
   const handleSendMessage = async () => {
     const trimmedInputText = inputText.trim();
-    if ((!trimmedInputText && !selectedImage) || isLoading) return;
+    if ((!trimmedInputText && !selectedImage && !audioBlob) || isLoading) return;
 
     // Detect intent
     const intent = detectUserIntent(trimmedInputText);
@@ -154,15 +165,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
       timestamp: Date.now(),
       imageUrl: imagePreviewUrl || undefined,
       imageMimeType: selectedImage?.type || undefined,
+      audioUrl: audioPreviewUrl || undefined,
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setIsLoading(true);
 
-    // Clear image preview and input after sending
+    // Clear previews and input after sending
     setSelectedImage(null);
     setImagePreviewUrl(null);
+    setAudioBlob(null);
+    setAudioPreviewUrl(null);
     if (fileInputRef.current) {
         fileInputRef.current.value = ''; 
     }
@@ -195,7 +209,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
           imageMimeType = selectedImage.type;
         }
 
-        const response = await sendContentToGemini(messages, trimmedInputText, base64Image, imageMimeType, onboardingData);
+        // Converter áudio para base64 se houver
+        let base64Audio: string | undefined;
+        let audioMimeType: string | undefined;
+        if (audioBlob) {
+          base64Audio = await fileToBase64(new File([audioBlob], 'audio.webm', { type: 'audio/webm' }));
+          audioMimeType = 'audio/webm';
+        }
+
+        const response = await sendContentToGemini(messages, trimmedInputText, base64Image, imageMimeType, base64Audio, audioMimeType, onboardingData);
         
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -210,10 +232,28 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
         setCopywriterResponse(null); // Clear copywriter response in normal mode
       }
     } catch (error) {
-      console.error("Erro ao enviar mensagem:", error);
+      // Log detalhado apenas em desenvolvimento
+      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        console.error("Erro ao enviar mensagem:", error);
+      }
+      
+      // Mensagem de erro amigável
+      let errorText = "Poxa, tive um probleminha para processar sua mensagem agora.";
+      if (error instanceof Error) {
+        if (error.message.includes('timeout') || error.message.includes('demorou')) {
+          errorText = "A requisição demorou muito. Tente novamente em alguns instantes.";
+        } else if (error.message.includes('API') || error.message.includes('chave')) {
+          errorText = "Erro de configuração. Verifique as configurações da API.";
+        } else if (error.message.includes('quota') || error.message.includes('limite')) {
+          errorText = "Limite de requisições atingido. Tente novamente em alguns minutos.";
+        } else {
+          errorText = error.message.length < 100 ? error.message : errorText;
+        }
+      }
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "Poxa, tive um probleminha para pensar ou processar a imagem agora. Tente novamente em alguns instantes.",
+        text: errorText,
         sender: Sender.AI,
         timestamp: Date.now(),
       };
@@ -255,11 +295,67 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
     setSelectedImage(null);
     setImagePreviewUrl(null);
     if (fileInputRef.current) {
-        fileInputRef.current.value = ''; // Clear file input
+        fileInputRef.current.value = '';
     }
   };
 
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: BlobPart[] = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        setAudioBlob(blob);
+        setAudioPreviewUrl(URL.createObjectURL(blob));
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      audioRecorderRef.current = recorder;
+      recorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Erro ao iniciar gravação:', error);
+      alert('Não foi possível acessar o microfone. Verifique as permissões.');
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (audioRecorderRef.current && isRecording) {
+      audioRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const handleCancelRecording = () => {
+    if (audioRecorderRef.current && isRecording) {
+      audioRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+    setAudioBlob(null);
+    setAudioPreviewUrl(null);
+  };
+
+  const handleRemoveAudio = () => {
+    setAudioBlob(null);
+    setAudioPreviewUrl(null);
+  };
+
   const handleNewConversation = () => {
+    // Criar nova thread
+    const newThread = createThread();
+    setCurrentThreadId(newThread.id);
+    if (onThreadChange) {
+      onThreadChange(newThread.id);
+    }
+    
     // Limpar estado local
     setMessages([]);
     setCopywriterResponse(null);
@@ -267,20 +363,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
     setInputText('');
     setSelectedImage(null);
     setImagePreviewUrl(null);
+    setAudioBlob(null);
+    setAudioPreviewUrl(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
     
-    // Limpar localStorage
-    const storageKey = getStorageKey();
-    localStorage.removeItem(storageKey);
-    
-    // Inicializar mensagem de boas-vindas (usa onboardingData atual)
+    // Inicializar mensagem de boas-vindas
     initializeWelcomeMessage(true);
   };
 
-  const handleClearAllHistory = () => {
-    if (window.confirm('Tem certeza que deseja limpar todo o histórico de conversas? Esta ação não pode ser desfeita.')) {
+  const handleClearThread = () => {
+    if (window.confirm('Tem certeza que deseja limpar esta conversa? Esta ação não pode ser desfeita.')) {
       // Limpar estado local
       setMessages([]);
       setCopywriterResponse(null);
@@ -288,13 +382,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
       setInputText('');
       setSelectedImage(null);
       setImagePreviewUrl(null);
+      setAudioBlob(null);
+      setAudioPreviewUrl(null);
       
-      // Limpar localStorage
-      const storageKey = getStorageKey();
-      localStorage.removeItem(storageKey);
+      // Limpar mensagens da thread atual
+      if (currentThreadId) {
+        saveThreadMessages(currentThreadId, []);
+      }
       
       // Inicializar mensagem de boas-vindas
-      initializeWelcomeMessage();
+      initializeWelcomeMessage(true);
     }
   };
 
@@ -302,9 +399,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
 
   const analysis = messages.length > 0 ? analyzeConversation(messages) : null;
 
+  // Não precisamos mais dessa função, o App.tsx gerencia a navegação
+
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-slate-900 relative max-w-4xl mx-auto transition-colors">
-      <ChatHeader onBack={onBack} />
+      <ChatHeader onBack={onBack} onViewConversations={onViewConversations} />
 
       {/* Toolbar Minimalista */}
       {messages.length > 0 && (
@@ -332,9 +431,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
               <ExportButton messages={messages} />
             </div>
             <button
-              onClick={handleClearAllHistory}
+              onClick={handleClearThread}
               className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400"
-              title="Limpar histórico"
+              title="Limpar conversa"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -344,8 +443,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
         </div>
       )}
 
-      {/* Chat Area */}
-      <main className="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth bg-white dark:bg-slate-900 transition-colors">
+      {/* Chat Area - Estilo ChatGPT Mobile */}
+      <main className="flex-1 overflow-y-auto scroll-smooth bg-white dark:bg-slate-900 transition-colors">
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
@@ -367,67 +466,133 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack }) => {
         <div ref={messagesEndRef} />
       </main>
 
-      {/* Input Area */}
-      <footer className="flex-none bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 p-4 sticky bottom-0 z-10 transition-colors">
+      {/* Input Area - Estilo ChatGPT Mobile */}
+      <footer className="flex-none bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-4 py-3 sticky bottom-0 z-10 transition-colors safe-area-inset-bottom">
+        {/* Preview de imagem */}
         {imagePreviewUrl && (
-            <div className="relative mb-3 p-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800">
-                <img src={imagePreviewUrl} alt="Prévia da imagem" className="max-h-40 w-auto rounded-md mx-auto object-contain" />
-                <button
-                    onClick={handleRemoveImage}
-                    className="absolute -top-2 -right-2 bg-red-500 dark:bg-red-600 text-white rounded-full p-1 text-xs leading-none flex items-center justify-center w-6 h-6 shadow-md hover:bg-red-600 dark:hover:bg-red-700 transition-colors z-20"
-                    aria-label="Remover imagem"
-                >
-                    &times;
-                </button>
-            </div>
+          <div className="relative mb-3 p-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800">
+            <img src={imagePreviewUrl} alt="Prévia da imagem" className="max-h-40 w-auto rounded-lg mx-auto object-contain" />
+            <button
+              onClick={handleRemoveImage}
+              className="absolute -top-2 -right-2 bg-red-500 dark:bg-red-600 text-white rounded-full p-1.5 text-xs leading-none flex items-center justify-center w-7 h-7 shadow-md hover:bg-red-600 dark:hover:bg-red-700 transition-colors z-20"
+              aria-label="Remover imagem"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         )}
-        <div className="relative flex items-end gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-1.5 focus-within:ring-2 focus-within:ring-brand-100 dark:focus-within:ring-brand-900 focus-within:border-brand-300 dark:focus-within:border-brand-500 transition-all shadow-sm">
+        
+        {/* Preview de áudio */}
+        {audioPreviewUrl && !isRecording && (
+          <div className="relative mb-3 p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center gap-3">
+            <audio src={audioPreviewUrl} controls className="flex-1 h-10" />
+            <button
+              onClick={handleRemoveAudio}
+              className="flex-none p-1.5 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              aria-label="Remover áudio"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
+        
+        {/* Input container - estilo ChatGPT */}
+        <div className="relative flex items-end gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl px-2 py-2 focus-within:ring-2 focus-within:ring-brand-100 dark:focus-within:ring-brand-900 focus-within:border-brand-300 dark:focus-within:border-brand-500 transition-all">
           <input
             type="file"
             ref={fileInputRef}
             accept="image/*"
             onChange={handleImageChange}
-            className="hidden" // Hide the default file input
+            className="hidden"
           />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex-none w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 mb-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 shadow-sm"
-            aria-label="Anexar imagem"
-            disabled={isLoading}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5h.008v.008h-.008zm12.75-6.75l-6.148-6.148a1.125 1.125 0 00-1.584 0L6.25 12.251m12.75-6.75a6 6 0 010 6-6 6 0 01-6 6H3.75a3.75 3.75 0 01-3.75-3.75V11.25a3.75 3.75 0 013.75-3.75h1.5" />
-            </svg>
-          </button>
-          <textarea
-            ref={textareaRef}
-            value={inputText}
-            onChange={handleInputResize}
-            onKeyDown={handleKeyDown}
-            placeholder={selectedImage ? "Descreva as edições na imagem (ex: 'adicione um filtro retrô', 'remova a pessoa')..." : "Responda para a LIA..."}
-            className="w-full bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 resize-none max-h-32 py-3 px-4 text-sm sm:text-base"
-            rows={1}
-            disabled={isLoading}
-          />
-          <button
-            onClick={handleSendMessage}
-            disabled={(!inputText.trim() && !selectedImage) || isLoading}
-            className={`flex-none w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 mb-0.5 ${
-              (!inputText.trim() && !selectedImage) || isLoading
-                ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
-                : 'bg-brand-600 dark:bg-brand-500 text-white hover:bg-brand-700 dark:hover:bg-brand-600 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95'
-            }`}
-            aria-label="Enviar mensagem"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-5 h-5 ml-0.5"
+          
+          {/* Botão de imagem */}
+          {!isRecording && (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-none w-9 h-9 rounded-full flex items-center justify-center transition-colors text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Anexar imagem"
+              disabled={isLoading}
             >
-              <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-            </svg>
-          </button>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5h.008v.008h-.008zm12.75-6.75l-6.148-6.148a1.125 1.125 0 00-1.584 0L6.25 12.251m12.75-6.75a6 6 0 010 6-6 6 0 01-6 6H3.75a3.75 3.75 0 01-3.75-3.75V11.25a3.75 3.75 0 013.75-3.75h1.5" />
+              </svg>
+            </button>
+          )}
+          
+          {/* Área de texto ou gravação */}
+          {isRecording ? (
+            <div className="flex-1 flex items-center justify-center gap-3 py-2">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-slate-600 dark:text-slate-400">Gravando...</span>
+              </div>
+              <button
+                onClick={handleStopRecording}
+                className="px-4 py-1.5 bg-brand-600 dark:bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-700 dark:hover:bg-brand-600 transition-colors"
+              >
+                Parar
+              </button>
+              <button
+                onClick={handleCancelRecording}
+                className="px-4 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          ) : (
+            <textarea
+              ref={textareaRef}
+              value={inputText}
+              onChange={handleInputResize}
+              onKeyDown={handleKeyDown}
+              placeholder={selectedImage ? "Descreva a imagem..." : audioPreviewUrl ? "Adicione uma mensagem (opcional)..." : "Mensagem para a LIA..."}
+              className="flex-1 bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 resize-none max-h-32 py-2 px-2 text-sm sm:text-base leading-relaxed"
+              rows={1}
+              disabled={isLoading}
+            />
+          )}
+          
+          {/* Botão de áudio ou enviar */}
+          {isRecording ? null : audioPreviewUrl || inputText.trim() || selectedImage ? (
+            <button
+              onClick={handleSendMessage}
+              disabled={isLoading}
+              className={`flex-none w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+                isLoading
+                  ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                  : 'bg-brand-600 dark:bg-brand-500 text-white hover:bg-brand-700 dark:hover:bg-brand-600 shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95'
+              }`}
+              aria-label="Enviar mensagem"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-5 h-5"
+              >
+                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+              </svg>
+            </button>
+          ) : (
+            <button
+              onMouseDown={handleStartRecording}
+              onMouseUp={handleStopRecording}
+              onTouchStart={handleStartRecording}
+              onTouchEnd={handleStopRecording}
+              className="flex-none w-9 h-9 rounded-full flex items-center justify-center transition-colors text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Gravar áudio"
+              disabled={isLoading}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+              </svg>
+            </button>
+          )}
         </div>
       </footer>
     </div>

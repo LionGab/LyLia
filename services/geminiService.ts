@@ -99,16 +99,18 @@ export const sendContentToGemini = async (
   newMessage: string,
   base64Image?: string, // Optional base64 image data
   imageMimeType?: string, // Optional image MIME type
+  base64Audio?: string, // Optional base64 audio data
+  audioMimeType?: string, // Optional audio MIME type
   onboardingContext?: OnboardingData, // Novo parâmetro
 ): Promise<{ text: string | undefined; imageUrl: string | undefined; mimeType: string | undefined }> => {
   // Validar entrada
-  if (!newMessage && !base64Image) {
-    throw new Error("Nenhum conteúdo (texto ou imagem) fornecido para o Gemini.");
+  if (!newMessage && !base64Image && !base64Audio) {
+    throw new Error("Nenhum conteúdo (texto, imagem ou áudio) fornecido para o Gemini.");
   }
 
   // Usar modelo apropriado baseado no contexto
   // API 2.0: gemini-2.0-flash-exp é o modelo mais recente e eficiente
-  const modelToUse = base64Image 
+  const modelToUse = base64Image || base64Audio
     ? AI_CONFIG.models.image 
     : AI_CONFIG.models.default;
 
@@ -120,6 +122,15 @@ export const sendContentToGemini = async (
       inlineData: {
         mimeType: imageMimeType,
         data: base64Image.split(',')[1], // Remove "data:image/png;base64," prefix
+      },
+    });
+  }
+
+  if (base64Audio && audioMimeType) {
+    parts.push({
+      inlineData: {
+        mimeType: audioMimeType,
+        data: base64Audio.split(',')[1], // Remove "data:audio/webm;base64," prefix
       },
     });
   }

@@ -43,28 +43,72 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isAI = message.sender === Sender.AI;
 
   return (
-    <div className={`flex w-full ${isAI ? 'justify-start' : 'justify-end'} mb-4 animate-fade-in`}>
-      <div
-        className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm text-sm sm:text-base leading-relaxed ${
-          isAI
-            ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-700 rounded-tl-none'
-            : 'bg-brand-600 dark:bg-brand-500 text-white rounded-tr-none'
-        }`}
-      >
-        {message.text && (
-          <div className="whitespace-pre-wrap break-words mb-2">
-            {formatText(message.text)}
-          </div>
-        )}
-        {message.imageUrl && (
-          <div className={`mt-2 ${message.text ? 'pt-2 border-t border-solid border-slate-200 dark:border-slate-700' : ''}`}>
-             <img src={message.imageUrl} alt="Conteúdo gerado" className="rounded-lg max-w-full h-auto object-contain" />
-          </div>
-        )}
-        <div className={`text-[10px] mt-2 opacity-60 ${isAI ? 'text-slate-400 dark:text-slate-500' : 'text-brand-100'}`}>
-           {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+    <div className={`flex w-full gap-3 px-4 py-2 ${isAI ? 'justify-start' : 'justify-end'} animate-fade-in`}>
+      {/* Avatar - apenas para mensagens da IA */}
+      {isAI && (
+        <div className="flex-none w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-600 dark:text-brand-400 font-semibold text-sm mt-1">
+          L
+        </div>
+      )}
+      
+      {/* Mensagem */}
+      <div className={`flex flex-col ${isAI ? 'items-start' : 'items-end'} max-w-[85%] sm:max-w-[75%]`}>
+        <div
+          className={`rounded-2xl px-4 py-3 shadow-sm text-sm sm:text-base leading-relaxed ${
+            isAI
+              ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none'
+              : 'bg-brand-600 dark:bg-brand-500 text-white rounded-tr-none'
+          }`}
+        >
+          {/* Imagem - exibir primeiro se for a única coisa */}
+          {message.imageUrl && (
+            <div className={`${message.text ? 'mb-3' : ''}`}>
+              <img 
+                src={message.imageUrl} 
+                alt={isAI ? "Imagem gerada pela IA" : "Imagem enviada"} 
+                className="rounded-xl max-w-full h-auto object-contain max-h-96 cursor-pointer hover:opacity-90 transition-opacity" 
+                onClick={() => {
+                  // Abrir imagem em tela cheia ao clicar
+                  const newWindow = window.open();
+                  if (newWindow) {
+                    newWindow.document.write(`<img src="${message.imageUrl}" style="max-width: 100%; height: auto;" />`);
+                  }
+                }}
+              />
+            </div>
+          )}
+          
+          {/* Áudio */}
+          {message.audioUrl && (
+            <div className={`${message.text || message.imageUrl ? 'mb-3' : ''}`}>
+              <audio 
+                src={message.audioUrl} 
+                controls 
+                className="w-full h-10 rounded-lg"
+              />
+            </div>
+          )}
+          
+          {/* Texto */}
+          {message.text && (
+            <div className="whitespace-pre-wrap break-words">
+              {formatText(message.text)}
+            </div>
+          )}
+        </div>
+        
+        {/* Timestamp - abaixo da bolha */}
+        <div className={`text-[10px] mt-1 px-1 opacity-60 ${isAI ? 'text-slate-400 dark:text-slate-500' : 'text-slate-500 dark:text-slate-400'}`}>
+          {new Date(message.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
+      
+      {/* Avatar do usuário - apenas para mensagens do usuário */}
+      {!isAI && (
+        <div className="flex-none w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-semibold text-xs mt-1">
+          U
+        </div>
+      )}
     </div>
   );
 };
