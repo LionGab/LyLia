@@ -56,8 +56,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     <div className="min-h-screen bg-gradient-to-br from-slate-100 dark:from-slate-900 to-slate-200 dark:to-slate-800 flex items-center justify-center p-4 transition-colors">
       <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 transition-colors">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-brand-500 to-purple-500 flex items-center justify-center text-white font-bold text-2xl shadow-lg mx-auto mb-4">
-            F
+          <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-tr from-brand-500 to-purple-500 flex items-center justify-center shadow-lg mx-auto mb-4">
+            <img 
+              src="/images/logo-main.jpg" 
+              alt="Funil ERL Logo" 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback se a imagem não carregar
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const parent = target.parentElement!;
+                parent.className = 'w-24 h-24 rounded-2xl bg-gradient-to-tr from-brand-500 to-purple-500 flex items-center justify-center text-white font-bold text-3xl shadow-lg mx-auto mb-4';
+                parent.textContent = 'F';
+              }}
+            />
           </div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Funil ERL</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">Método ERL - Acesso Restrito</p>
