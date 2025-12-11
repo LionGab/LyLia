@@ -43,10 +43,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isAI = message.sender === Sender.AI;
 
   return (
-    <div className={`flex w-full gap-3 px-4 py-2 ${isAI ? 'justify-start' : 'justify-end'} animate-fade-in`}>
+    <div className={`flex w-full gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 ${isAI ? 'justify-start' : 'justify-end'} animate-fade-in`}>
       {/* Avatar - apenas para mensagens da IA */}
       {isAI && (
-        <div className="flex-none w-8 h-8 rounded-full overflow-hidden bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center mt-1 flex-shrink-0">
+        <div className="flex-none w-9 h-9 sm:w-8 sm:h-8 rounded-full overflow-hidden bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center mt-0.5 sm:mt-1 flex-shrink-0">
           <img 
             src="/images/logo-main.jpg" 
             alt="Lyla.IA" 
@@ -56,7 +56,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
               const target = e.target as HTMLImageElement;
               target.style.display = 'none';
               const parent = target.parentElement!;
-              parent.className = 'flex-none w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-600 dark:text-brand-400 font-semibold text-sm mt-1 flex-shrink-0';
+              parent.className = 'flex-none w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-600 dark:text-brand-400 font-semibold text-sm mt-0.5 sm:mt-1 flex-shrink-0';
               parent.textContent = 'L';
             }}
           />
@@ -64,9 +64,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
       )}
       
       {/* Mensagem */}
-      <div className={`flex flex-col ${isAI ? 'items-start' : 'items-end'} max-w-[85%] sm:max-w-[75%]`}>
+      <div className={`flex flex-col ${isAI ? 'items-start' : 'items-end'} max-w-[82%] sm:max-w-[75%]`}>
         <div
-          className={`rounded-2xl px-4 py-3 shadow-sm text-sm sm:text-base leading-relaxed ${
+          className={`rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 shadow-sm text-base sm:text-base leading-relaxed ${
             isAI
               ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none'
               : 'bg-brand-600 dark:bg-brand-500 text-white rounded-tr-none'
@@ -117,7 +117,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
       
       {/* Avatar do usuário - apenas para mensagens do usuário */}
       {!isAI && (
-        <div className="flex-none w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-semibold text-xs mt-1">
+        <div className="flex-none w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-semibold text-xs sm:text-xs mt-0.5 sm:mt-1">
           U
         </div>
       )}

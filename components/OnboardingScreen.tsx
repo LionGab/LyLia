@@ -119,8 +119,8 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 dark:from-slate-900 to-slate-200 dark:to-slate-800 flex items-center justify-center p-4 transition-colors">
-      <div className="w-full max-w-4xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 transition-colors">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 dark:from-slate-900 to-slate-200 dark:to-slate-800 flex items-center justify-center p-3 sm:p-4 transition-colors safe-area-inset overflow-y-auto py-6">
+      <div className="w-full max-w-4xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 transition-colors my-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-brand-500 to-purple-500 flex items-center justify-center text-white font-bold text-2xl shadow-lg mx-auto mb-4">
@@ -148,15 +148,15 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
             <h2 className="text-xl font-semibold text-slate-800 dark:text-white mb-4">
               Qual tipo de negócio você tem ou quer criar?
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {BUSINESS_TEMPLATES.map((template) => (
                 <button
                   key={template.id}
                   onClick={() => handleTemplateSelect(template)}
-                  className={`p-4 rounded-xl border-2 transition-all text-left ${
+                  className={`p-4 sm:p-4 rounded-xl border-2 transition-all text-left touch-manipulation ${
                     selectedTemplate?.id === template.id
                       ? 'border-brand-600 dark:border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-lg'
-                      : 'border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-600 bg-white dark:bg-slate-900'
+                      : 'border-slate-200 dark:border-slate-700 active:border-brand-300 dark:active:border-brand-600 bg-white dark:bg-slate-900'
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -233,10 +233,10 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
                     <button
                       key={style.id}
                       onClick={() => setSelectedStyle(style.id)}
-                      className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
+                      className={`w-full p-4 sm:p-4 rounded-xl border-2 transition-all text-left touch-manipulation ${
                         selectedStyle === style.id
                           ? 'border-brand-600 dark:border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-lg'
-                          : 'border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-600 bg-white dark:bg-slate-900'
+                          : 'border-slate-200 dark:border-slate-700 active:border-brand-300 dark:active:border-brand-600 bg-white dark:bg-slate-900'
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -271,10 +271,10 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
                     <button
                       key={style.id}
                       onClick={() => setSelectedStyle(style.id)}
-                      className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
+                      className={`w-full p-4 sm:p-4 rounded-xl border-2 transition-all text-left touch-manipulation ${
                         selectedStyle === style.id
                           ? 'border-brand-600 dark:border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-lg'
-                          : 'border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-600 bg-white dark:bg-slate-900'
+                          : 'border-slate-200 dark:border-slate-700 active:border-brand-300 dark:active:border-brand-600 bg-white dark:bg-slate-900'
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -335,10 +335,10 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
         )}
 
         {/* Footer */}
-        <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-0 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-200 dark:border-slate-700">
           <button
             onClick={handleSkip}
-            className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+            className="px-4 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:text-slate-800 dark:active:text-slate-200 transition-colors touch-manipulation text-left sm:text-left"
           >
             Pular
           </button>
@@ -346,14 +346,14 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
             {step > 1 && (
               <button
                 onClick={handleBack}
-                className="px-6 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                className="flex-1 sm:flex-none px-6 py-3 sm:py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg active:bg-slate-200 dark:active:bg-slate-600 transition-colors touch-manipulation"
               >
                 Voltar
               </button>
             )}
             <button
               onClick={handleNext}
-              className="px-6 py-2 bg-brand-600 dark:bg-brand-500 text-white rounded-lg hover:bg-brand-700 dark:hover:bg-brand-600 shadow-md hover:shadow-lg transition-all"
+              className="flex-1 sm:flex-none px-6 py-3 sm:py-2 bg-brand-600 dark:bg-brand-500 text-white rounded-lg active:bg-brand-700 dark:active:bg-brand-600 shadow-md active:shadow-lg active:scale-[0.98] transition-all touch-manipulation"
             >
               {step === 3 ? 'Finalizar' : 'Continuar'}
             </button>

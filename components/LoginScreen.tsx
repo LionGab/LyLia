@@ -53,8 +53,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 dark:from-slate-900 to-slate-200 dark:to-slate-800 flex items-center justify-center p-4 transition-colors">
-      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 transition-colors">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 dark:from-slate-900 to-slate-200 dark:to-slate-800 flex items-center justify-center p-4 sm:p-6 transition-colors safe-area-inset">
+      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 transition-colors">
         <div className="text-center mb-8">
           <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-tr from-brand-500 to-purple-500 flex items-center justify-center shadow-lg mx-auto mb-4">
             <img 
@@ -104,10 +104,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 px-4 rounded-lg font-medium text-white transition-all ${
+            className={`w-full py-3.5 sm:py-3 px-4 rounded-lg font-medium text-white transition-all touch-manipulation ${
               isLoading
                 ? 'bg-slate-400 dark:bg-slate-600 cursor-not-allowed'
-                : 'bg-brand-600 dark:bg-brand-500 hover:bg-brand-700 dark:hover:bg-brand-600 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]'
+                : 'bg-brand-600 dark:bg-brand-500 active:bg-brand-700 dark:active:bg-brand-600 shadow-md active:shadow-lg active:scale-[0.98]'
             }`}
           >
             {isLoading ? 'Verificando...' : 'Entrar'}

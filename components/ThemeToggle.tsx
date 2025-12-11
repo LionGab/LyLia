@@ -30,13 +30,14 @@ const ThemeToggle: React.FC = () => {
   return (
     <button
       onClick={handleToggle}
-      className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+      className="p-2 sm:p-1.5 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors touch-manipulation"
       title={currentTheme === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'}
+      aria-label={currentTheme === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'}
     >
       {currentTheme === 'light' ? (
-        <span className="text-lg">🌙</span>
+        <span className="text-xl sm:text-lg">🌙</span>
       ) : (
-        <span className="text-lg">☀️</span>
+        <span className="text-xl sm:text-lg">☀️</span>
       )}
     </button>
   );

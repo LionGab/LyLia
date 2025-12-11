@@ -402,28 +402,28 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
   // Não precisamos mais dessa função, o App.tsx gerencia a navegação
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-slate-900 relative max-w-4xl mx-auto transition-colors">
+    <div className="flex flex-col h-screen bg-white dark:bg-slate-900 relative w-full transition-colors safe-area-inset">
       <ChatHeader onBack={onBack} onViewConversations={onViewConversations} />
 
-      {/* Toolbar Minimalista */}
+      {/* Toolbar Minimalista - Mobile-first */}
       {messages.length > 0 && (
-        <div className="flex-none bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-6 py-2 transition-colors">
-          <div className="flex items-center justify-between">
+        <div className="flex-none bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-3 sm:px-6 py-2 transition-colors overflow-x-auto">
+          <div className="flex items-center justify-between gap-2 min-w-max">
             <div className="flex items-center gap-2">
               <CopywriterModeToggle isActive={copywriterMode} onToggle={setCopywriterMode} />
               <button
                 onClick={handleNewConversation}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                className="px-3 py-2 sm:py-1.5 rounded-lg text-xs font-medium transition-colors bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:bg-slate-200 dark:active:bg-slate-700 touch-manipulation"
                 title="Nova conversa"
               >
                 Nova
               </button>
               <button
                 onClick={() => setShowAnalysis(!showAnalysis)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`px-3 py-2 sm:py-1.5 rounded-lg text-xs font-medium transition-colors touch-manipulation ${
                   showAnalysis 
                     ? 'bg-brand-600 dark:bg-brand-500 text-white' 
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:bg-slate-200 dark:active:bg-slate-700'
                 }`}
               >
                 Análise{analysis && ` ${analysis.progresso.porcentagem}%`}
@@ -432,10 +432,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
             </div>
             <button
               onClick={handleClearThread}
-              className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400"
+              className="p-2 sm:p-1.5 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors text-slate-400 dark:text-slate-500 active:text-red-600 dark:active:text-red-400 touch-manipulation"
               title="Limpar conversa"
+              aria-label="Limpar conversa"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 sm:w-4 sm:h-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
               </svg>
             </button>
@@ -443,8 +444,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
         </div>
       )}
 
-      {/* Chat Area - Estilo ChatGPT Mobile */}
-      <main className="flex-1 overflow-y-auto scroll-smooth bg-white dark:bg-slate-900 transition-colors">
+      {/* Chat Area - Mobile-first */}
+      <main className="flex-1 overflow-y-auto scroll-smooth bg-white dark:bg-slate-900 transition-colors overscroll-contain">
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
@@ -466,8 +467,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
         <div ref={messagesEndRef} />
       </main>
 
-      {/* Input Area - Estilo ChatGPT Mobile */}
-      <footer className="flex-none bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-4 py-3 sticky bottom-0 z-10 transition-colors safe-area-inset-bottom">
+      {/* Input Area - Mobile-first */}
+      <footer className="flex-none bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-3 sm:px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sticky bottom-0 z-10 transition-colors">
         {/* Preview de imagem */}
         {imagePreviewUrl && (
           <div className="relative mb-3 p-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800">
@@ -514,11 +515,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
           {!isRecording && (
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex-none w-9 h-9 rounded-full flex items-center justify-center transition-colors text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-none w-11 h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-colors text-slate-500 dark:text-slate-400 active:bg-slate-200 dark:active:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
               aria-label="Anexar imagem"
               disabled={isLoading}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 sm:w-5 sm:h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5h.008v.008h-.008zm12.75-6.75l-6.148-6.148a1.125 1.125 0 00-1.584 0L6.25 12.251m12.75-6.75a6 6 0 010 6-6 6 0 01-6 6H3.75a3.75 3.75 0 01-3.75-3.75V11.25a3.75 3.75 0 013.75-3.75h1.5" />
               </svg>
             </button>
@@ -533,13 +534,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
               </div>
               <button
                 onClick={handleStopRecording}
-                className="px-4 py-1.5 bg-brand-600 dark:bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-700 dark:hover:bg-brand-600 transition-colors"
+                className="px-4 py-2.5 sm:py-1.5 bg-brand-600 dark:bg-brand-500 text-white rounded-lg text-sm font-medium active:bg-brand-700 dark:active:bg-brand-600 transition-colors touch-manipulation"
               >
                 Parar
               </button>
               <button
                 onClick={handleCancelRecording}
-                className="px-4 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                className="px-4 py-2.5 sm:py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium active:bg-slate-300 dark:active:bg-slate-600 transition-colors touch-manipulation"
               >
                 Cancelar
               </button>
@@ -551,7 +552,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
               onChange={handleInputResize}
               onKeyDown={handleKeyDown}
               placeholder={selectedImage ? "Descreva a imagem..." : audioPreviewUrl ? "Adicione uma mensagem (opcional)..." : "Mensagem para a Lyla.IA..."}
-              className="flex-1 bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 resize-none max-h-32 py-2 px-2 text-sm sm:text-base leading-relaxed"
+              className="flex-1 bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 resize-none max-h-32 py-2.5 sm:py-2 px-2 text-base sm:text-base leading-relaxed"
               rows={1}
               disabled={isLoading}
             />
@@ -562,10 +563,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
             <button
               onClick={handleSendMessage}
               disabled={isLoading}
-              className={`flex-none w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+              className={`flex-none w-11 h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all touch-manipulation ${
                 isLoading
                   ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
-                  : 'bg-brand-600 dark:bg-brand-500 text-white hover:bg-brand-700 dark:hover:bg-brand-600 shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95'
+                  : 'bg-brand-600 dark:bg-brand-500 text-white active:bg-brand-700 dark:active:bg-brand-600 shadow-sm active:shadow-md active:scale-95'
               }`}
               aria-label="Enviar mensagem"
             >
@@ -573,7 +574,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="currentColor"
-                className="w-5 h-5"
+                className="w-6 h-6 sm:w-5 sm:h-5"
               >
                 <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
               </svg>
@@ -584,11 +585,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
               onMouseUp={handleStopRecording}
               onTouchStart={handleStartRecording}
               onTouchEnd={handleStopRecording}
-              className="flex-none w-9 h-9 rounded-full flex items-center justify-center transition-colors text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-none w-11 h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-colors text-slate-500 dark:text-slate-400 active:bg-slate-200 dark:active:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
               aria-label="Gravar áudio"
               disabled={isLoading}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 sm:w-5 sm:h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
               </svg>
             </button>
