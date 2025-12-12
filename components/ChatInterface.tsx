@@ -217,7 +217,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
           audioMimeType = 'audio/webm';
         }
 
-        const response = await sendContentToGemini(messages, trimmedInputText, base64Image, imageMimeType, base64Audio, audioMimeType, onboardingData);
+        const response = await sendContentToGemini(messages, trimmedInputText, base64Image, imageMimeType, base64Audio, audioMimeType, onboardingData, agentId || undefined);
         
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),

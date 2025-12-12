@@ -1,5 +1,6 @@
 import { GoogleGenAI, Content } from "@google/genai";
 import { LIA_SYSTEM_PROMPT, APP_NAME } from "../constants";
+import { selectPromptByAgent } from "../constants/agentPrompts";
 import { Message, Sender } from "../types";
 import { OnboardingData } from "../types/onboarding";
 import { AI_CONFIG } from "../constants/aiConfig";
@@ -163,6 +164,7 @@ export const sendContentToGemini = async (
   base64Audio?: string,
   audioMimeType?: string,
   onboardingContext?: OnboardingData,
+  agentId?: string,
 ): Promise<GeminiResponse> => {
   // Validar entrada
   if (!newMessage && !base64Image && !base64Audio) {
@@ -232,7 +234,18 @@ export const sendContentToGemini = async (
 
   // Construir contexto enriquecido
   const enrichedContext = enrichContext(currentHistory, onboardingContext);
-  let contextPrompt = LIA_SYSTEM_PROMPT;
+  // Selecionar prompt baseado no agentId
+  let basePrompt = LIA_SYSTEM_PROMPT;
+  
+  // Se agentId for fornecido e tiver prompt específico, usar
+  if (agentId) {
+    const agentPrompt = selectPromptByAgent(agentId);
+    if (agentPrompt) {
+      basePrompt = agentPrompt;
+    }
+  }
+  
+  let contextPrompt = basePrompt;
   
   // Adicionar instruções de estilo de resposta se disponível
   if (onboardingContext?.estiloResposta) {
