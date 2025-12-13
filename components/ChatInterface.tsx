@@ -128,19 +128,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
     ]);
   };
 
-  // Save history to localStorage whenever messages change
-  useEffect(() => {
-    if (isInitialized) {
-      const storageKey = getStorageKey();
-      localStorage.setItem(storageKey, JSON.stringify(messages));
-      
-      // Update analysis when messages change
-      if (messages.length > 0) {
-        // Analysis will be shown if user requests it
-      }
-    }
-  }, [messages, isInitialized]);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
