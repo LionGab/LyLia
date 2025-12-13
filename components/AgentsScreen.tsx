@@ -241,7 +241,7 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 max-w-7xl mx-auto w-full">
-            {filteredAgents.map((agent) => (
+            {filteredAgents.map((agent, index) => (
               <button
                 key={agent.id}
                 type="button"
@@ -249,9 +249,26 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
                 onClick={() => onSelectAgent(agent.id)}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${getAgentColorClass(agent.color)} flex items-center justify-center text-xl sm:text-2xl shadow-sm flex-shrink-0`}>
-                    {agent.icon}
-                  </div>
+                  {index === 0 ? (
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm flex-shrink-0">
+                      <img 
+                        src="/images/logo-main.jpg" 
+                        alt={agent.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement!;
+                          parent.className = `w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${getAgentColorClass(agent.color)} flex items-center justify-center text-xl sm:text-2xl shadow-sm flex-shrink-0`;
+                          parent.textContent = agent.icon;
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${getAgentColorClass(agent.color)} flex items-center justify-center text-xl sm:text-2xl shadow-sm flex-shrink-0`}>
+                      {agent.icon}
+                    </div>
+                  )}
                 </div>
 
                 <div>
