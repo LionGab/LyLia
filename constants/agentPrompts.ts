@@ -425,6 +425,9 @@ Quando receber um produto, entregue imediatamente a Oferta 11 Estrelas completa.
 
 /**
  * Seleciona o prompt apropriado baseado no agentId
+ * 
+ * Nota: 'lia-erl' usa LIA_SYSTEM_PROMPT (definido em constants.ts)
+ * 'copywriter' usa COPYWRITER_SYSTEM_PROMPT (definido em constants/copywriterPrompt.ts)
  */
 export const selectPromptByAgent = (agentId: string): string => {
   const promptMap: Record<string, string> = {
