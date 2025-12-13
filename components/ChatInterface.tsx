@@ -3,12 +3,11 @@ import { Message, Sender } from '../types';
 import { sendContentToGemini } from '../services/geminiService';
 import { processCopywriterRequest } from '../services/copywriterService';
 import { detectUserIntent, isExplicitCopywriterRequest } from '../services/modeDetectionService';
-import { analyzeConversation } from '../services/analysisService';
 import { getCurrentUser } from '../services/authService';
 import { checkAndMigrate } from '../services/migrationService';
 import { initTheme } from '../services/themeService';
 import { OnboardingData } from '../types/onboarding';
-import { getThreadMessages, saveThreadMessages, createThread } from '../services/threadService';
+import { getThreadMessages, saveThreadMessages } from '../services/threadService';
 import { logger } from '../services/logger';
 import { 
   createMemoryConversation, 
@@ -19,9 +18,7 @@ import { getAgentConfig, type AgentId } from '../config/agents';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from './TypingIndicator';
 import ChatHeader from './ChatHeader';
-import CopywriterModeToggle from './CopywriterModeToggle';
 import CopywriterResponse from './CopywriterResponse';
-import AnalysisPanel from './AnalysisPanel';
 import ExportButton from './ExportButton';
 import { CopywriterResponse as CopywriterResponseType } from '../types/copywriter';
 
@@ -52,7 +49,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [copywriterMode, setCopywriterMode] = useState(false);
   const [copywriterResponse, setCopywriterResponse] = useState<CopywriterResponseType | null>(null);
-  const [showAnalysis, setShowAnalysis] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | undefined>(undefined);
   const [currentThreadId, setCurrentThreadId] = useState<string | null>(threadId || null);
   const [isSupabaseThread, setIsSupabaseThread] = useState(false);
@@ -254,8 +250,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
         let base64Audio: string | undefined;
         let audioMimeType: string | undefined;
         if (audioBlob) {
-          base64Audio = await fileToBase64(new File([audioBlob], 'audio.webm', { type: 'audio/webm' }));
-          audioMimeType = 'audio/webm';
+          // Usar o tipo MIME do blob se disponível
+          const mimeType = audioBlob.type || 'audio/webm';
+          base64Audio = await fileToBase64(new File([audioBlob], 'audio.webm', { type: mimeType }));
+          audioMimeType = mimeType;
         }
 
         const response = await sendContentToGemini(messages, trimmedInputText, base64Image, imageMimeType, base64Audio, audioMimeType, onboardingData, agentId || undefined);
@@ -345,8 +343,25 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
 
   const handleStartRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 16000,
+        } 
+      });
+      
+      // Tentar usar codec opus se disponível, senão usar o padrão
+      const options: MediaRecorderOptions = {};
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        options.mimeType = 'audio/webm;codecs=opus';
+      } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+        options.mimeType = 'audio/webm';
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        options.mimeType = 'audio/mp4';
+      }
+      
+      const recorder = new MediaRecorder(stream, options);
       const chunks: BlobPart[] = [];
 
       recorder.ondataavailable = (e) => {
@@ -356,7 +371,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
       };
 
       recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const mimeType = recorder.mimeType || 'audio/webm';
+        const blob = new Blob(chunks, { type: mimeType });
         setAudioBlob(blob);
         setAudioPreviewUrl(URL.createObjectURL(blob));
         stream.getTracks().forEach(track => track.stop());
@@ -392,37 +408,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
     setAudioPreviewUrl(null);
   };
 
-  const handleNewConversation = () => {
-    // Criar nova thread
-    const newThread = createThread();
-    setCurrentThreadId(newThread.id);
-    if (onThreadChange) {
-      onThreadChange(newThread.id);
-    }
-    
-    // Limpar estado local
-    setMessages([]);
-    setCopywriterResponse(null);
-    setShowAnalysis(false);
-    setInputText('');
-    setSelectedImage(null);
-    setImagePreviewUrl(null);
-    setAudioBlob(null);
-    setAudioPreviewUrl(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    
-    // Inicializar mensagem de boas-vindas
-    initializeWelcomeMessage(true);
-  };
-
   const handleClearThread = () => {
     if (window.confirm('Tem certeza que deseja limpar esta conversa? Esta ação não pode ser desfeita.')) {
       // Limpar estado local
       setMessages([]);
       setCopywriterResponse(null);
-      setShowAnalysis(false);
       setInputText('');
       setSelectedImage(null);
       setImagePreviewUrl(null);
@@ -441,8 +431,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
 
   if (!isInitialized) return null;
 
-  const analysis = messages.length > 0 ? analyzeConversation(messages) : null;
-
   // Não precisamos mais dessa função, o App.tsx gerencia a navegação
 
   return (
@@ -454,24 +442,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
         <div className="flex-none bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-3 sm:px-6 py-2 transition-colors overflow-x-auto">
           <div className="flex items-center justify-between gap-2 min-w-max">
             <div className="flex items-center gap-2">
-              <CopywriterModeToggle isActive={copywriterMode} onToggle={setCopywriterMode} />
-              <button
-                onClick={handleNewConversation}
-                className="px-3 py-2 sm:py-1.5 rounded-lg text-xs font-medium transition-colors bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:bg-slate-200 dark:active:bg-slate-700 touch-manipulation"
-                title="Nova conversa"
-              >
-                Nova
-              </button>
-              <button
-                onClick={() => setShowAnalysis(!showAnalysis)}
-                className={`px-3 py-2 sm:py-1.5 rounded-lg text-xs font-medium transition-colors touch-manipulation ${
-                  showAnalysis 
-                    ? 'bg-brand-600 dark:bg-brand-500 text-white' 
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:bg-slate-200 dark:active:bg-slate-700'
-                }`}
-              >
-                Análise{analysis && ` ${analysis.progresso.porcentagem}%`}
-              </button>
               <ExportButton messages={messages} />
             </div>
             <button
@@ -493,12 +463,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} agentId={agentId || 'lia-erl'} />
         ))}
-        
-        {showAnalysis && analysis && (
-          <div className="mt-4 animate-fade-in">
-            <AnalysisPanel analysis={analysis} />
-          </div>
-        )}
         
         {/* Copywriter Response - Full Width */}
         {copywriterResponse && (
