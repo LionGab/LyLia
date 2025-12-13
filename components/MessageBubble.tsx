@@ -1,8 +1,10 @@
 import React from 'react';
 import { Message, Sender } from '../types';
+import { getAgentConfig, type AgentId } from '../config/agents';
 
 interface MessageBubbleProps {
   message: Message;
+  agentId?: string;
 }
 
 // Function to format currency values found in text (e.g. R$ 1000 -> R$ 1.000,00)
@@ -39,14 +41,53 @@ const formatText = (text: string) => {
   });
 };
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agentId = 'lia-erl' }) => {
   const isAI = message.sender === Sender.AI;
+  const agentConfig = getAgentConfig(agentId as AgentId);
+  
+  // Cores por agente (estilo GPT Mobile)
+  const getAgentColorClasses = () => {
+    switch (agentConfig.ui.color) {
+      case 'purple':
+        return {
+          avatar: 'bg-purple-100 dark:bg-purple-900/30',
+          bubble: 'bg-white dark:bg-slate-800',
+          text: 'text-slate-800 dark:text-slate-200',
+        };
+      case 'orange':
+        return {
+          avatar: 'bg-orange-100 dark:bg-orange-900/30',
+          bubble: 'bg-white dark:bg-slate-800',
+          text: 'text-slate-800 dark:text-slate-200',
+        };
+      case 'blue':
+        return {
+          avatar: 'bg-blue-100 dark:bg-blue-900/30',
+          bubble: 'bg-white dark:bg-slate-800',
+          text: 'text-slate-800 dark:text-slate-200',
+        };
+      case 'green':
+        return {
+          avatar: 'bg-green-100 dark:bg-green-900/30',
+          bubble: 'bg-white dark:bg-slate-800',
+          text: 'text-slate-800 dark:text-slate-200',
+        };
+      default:
+        return {
+          avatar: 'bg-slate-100 dark:bg-slate-700',
+          bubble: 'bg-white dark:bg-slate-800',
+          text: 'text-slate-800 dark:text-slate-200',
+        };
+    }
+  };
+  
+  const colors = getAgentColorClasses();
 
   return (
-    <div className={`flex w-full gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 ${isAI ? 'justify-start' : 'justify-end'} animate-fade-in`}>
+    <div className={`flex w-full gap-3 px-4 py-3 ${isAI ? 'justify-start' : 'justify-end'} animate-fade-in`}>
       {/* Avatar - apenas para mensagens da IA */}
       {isAI && (
-        <div className="flex-none w-9 h-9 sm:w-8 sm:h-8 rounded-full overflow-hidden bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center mt-0.5 sm:mt-1 flex-shrink-0">
+        <div className={`flex-none w-8 h-8 rounded-full overflow-hidden ${colors.avatar} flex items-center justify-center mt-0.5 flex-shrink-0`}>
           <img 
             src="/images/logo-main.jpg" 
             alt="Lyla.IA" 
@@ -63,13 +104,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
         </div>
       )}
       
-      {/* Mensagem */}
-      <div className={`flex flex-col ${isAI ? 'items-start' : 'items-end'} max-w-[82%] sm:max-w-[75%]`}>
+      {/* Mensagem - Estilo GPT Mobile */}
+      <div className={`flex flex-col ${isAI ? 'items-start' : 'items-end'} max-w-[85%]`}>
         <div
-          className={`rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 shadow-sm text-base sm:text-base leading-relaxed ${
+          className={`rounded-2xl px-4 py-3 shadow-sm text-[15px] leading-relaxed ${
             isAI
-              ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none'
-              : 'bg-brand-600 dark:bg-brand-500 text-white rounded-tr-none'
+              ? `${colors.bubble} ${colors.text} rounded-tl-none`
+              : 'bg-[#0b93f6] dark:bg-[#0b93f6] text-white rounded-tr-none'
           }`}
         >
           {/* Imagem - exibir primeiro se for a única coisa */}
