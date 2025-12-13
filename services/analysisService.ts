@@ -5,7 +5,6 @@ import { ConversationAnalysis, Insights, ProgressTracker, Decision } from '../ty
  * Analisa uma conversa e extrai insights
  */
 export const analyzeConversation = (messages: Message[]): ConversationAnalysis => {
-  const userMessages = messages.filter(m => m.sender === Sender.User);
   const aiMessages = messages.filter(m => m.sender === Sender.AI);
   
   // Extrair produtos sugeridos
@@ -49,7 +48,7 @@ const extractProducts = (aiMessages: Message[]): string[] => {
       productKeywords.forEach(keyword => {
         if (text.includes(keyword)) {
           // Tentar extrair nome do produto
-          const lines = msg.text.split('\n');
+          const lines = msg.text!.split('\n');
           lines.forEach(line => {
             if (line.toLowerCase().includes('nome') || line.toLowerCase().includes('produto')) {
               const match = line.match(/[:\-]\s*(.+)/);
@@ -177,7 +176,7 @@ const generateInsights = (
  */
 const suggestNextSteps = (
   blocos: ConversationAnalysis['blocosCompletados'],
-  produtos: string[]
+  _produtos: string[]
 ): string[] => {
   const passos: string[] = [];
   

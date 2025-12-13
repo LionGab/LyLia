@@ -52,7 +52,7 @@ export const enrichContext = (
   if (recentMessages.length > 0) {
     const keyInfo: string[] = [];
     
-    recentMessages.forEach((msg, index) => {
+    recentMessages.forEach((msg) => {
       if (msg.sender === 'user' && msg.text) {
         // Extrair informações importantes das mensagens do usuário
         const text = msg.text.toLowerCase();

@@ -56,7 +56,7 @@ const App: React.FC = () => {
     }
   };
 
-  const handleOnboardingComplete = (data: OnboardingData) => {
+  const handleOnboardingComplete = (_data: OnboardingData) => {
     setShowOnboarding(false);
     // Dados já foram salvos no OnboardingScreen
   };
@@ -98,10 +98,10 @@ const App: React.FC = () => {
     setCurrentThreadId(threadId);
   };
 
-  const handleViewHistory = (sessionId: string) => {
-    // Implementar visualização de histórico
-    console.log('View history:', sessionId);
-  };
+  // TODO: Implementar handleViewHistory quando necessário
+  // const handleViewHistory = (_sessionId: string) => {
+  //   // Implementar visualização de histórico
+  // };
 
   const handleViewTutorials = () => {
     setCurrentView('tutorials');

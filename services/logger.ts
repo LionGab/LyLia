@@ -73,7 +73,7 @@ class Logger {
     }
   }
 
-  private sendToMonitoring(entry: LogEntry): void {
+  private sendToMonitoring(_entry: LogEntry): void {
     // Implementação futura para envio de logs críticos
     // Por enquanto, apenas armazena em memória
   }

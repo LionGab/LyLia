@@ -139,7 +139,7 @@ export const processCopywriterRequest = async (
  */
 const parseCopywriterResponse = (
   text: string,
-  originalInput: string
+  _originalInput: string
 ): CopywriterResponse => {
   // Extrair seções do texto usando padrões
   // Esta é uma implementação básica - pode ser melhorada com parsing mais sofisticado

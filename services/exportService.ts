@@ -90,7 +90,7 @@ export const structureFinalData = (messages: Message[]): ExportData => {
     produto,
     funil,
     conteudo,
-    mensagens,
+    mensagens: messages,
     timestamp: Date.now(),
   };
 };

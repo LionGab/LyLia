@@ -1,4 +1,4 @@
-import { LIA_SYSTEM_PROMPT } from './constants';
+import { LIA_SYSTEM_PROMPT } from '../constants';
 
 /**
  * Prompt para criação de produtos

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getTheme, setTheme, toggleTheme, initTheme } from '../services/themeService';
+import { getTheme, toggleTheme, initTheme } from '../services/themeService';
 
 const ThemeToggle: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light');

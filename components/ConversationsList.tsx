@@ -18,7 +18,7 @@ const ConversationsList: React.FC<ConversationsListProps> = ({
 
   useEffect(() => {
     // Migrar histórico antigo na primeira vez
-    const migratedThreadId = migrateOldHistory();
+    migrateOldHistory();
     
     // Carregar threads
     loadThreads();

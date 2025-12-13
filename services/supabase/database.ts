@@ -84,10 +84,11 @@ export const upsertOnboardingData = async (
   try {
     const { data: result, error } = await supabase
       .from('onboarding_data')
+      // @ts-expect-error - Supabase client não tem tipos gerados do schema. Tipos definidos manualmente em types.ts
       .upsert(
         {
-          user_id: userId,
           ...data,
+          user_id: userId,
         },
         {
           onConflict: 'user_id',
@@ -143,6 +144,7 @@ export const updateOnboardingData = async (
   try {
     const { data, error } = await supabase
       .from('onboarding_data')
+      // @ts-expect-error - Supabase client não tem tipos gerados do schema. Tipos definidos manualmente em types.ts
       .update(updates)
       .eq('user_id', userId)
       .select()
@@ -171,6 +173,7 @@ export const createConversation = async (
   try {
     const { data, error } = await supabase
       .from('conversations')
+      // @ts-expect-error - Supabase client não tem tipos gerados do schema. Tipos definidos manualmente em types.ts
       .insert(conversationData)
       .select()
       .single();
@@ -178,8 +181,8 @@ export const createConversation = async (
     if (error) throw error;
 
     logger.debug('Conversa criada', {
-      conversationId: data.id,
-      agentId: data.agent_id,
+      conversationId: (data as Conversation).id,
+      agentId: (data as Conversation).agent_id,
     });
     return data;
   } catch (error) {
@@ -249,6 +252,7 @@ export const updateConversationTitle = async (
   try {
     const { error } = await supabase
       .from('conversations')
+      // @ts-expect-error - Supabase client não tem tipos gerados do schema. Tipos definidos manualmente em types.ts
       .update({ title })
       .eq('id', conversationId);
 
@@ -277,6 +281,7 @@ export const addMessage = async (
   try {
     const { data, error } = await supabase
       .from('messages')
+      // @ts-expect-error - Supabase client não tem tipos gerados do schema. Tipos definidos manualmente em types.ts
       .insert(messageData)
       .select()
       .single();
@@ -284,8 +289,8 @@ export const addMessage = async (
     if (error) throw error;
 
     logger.debug('Mensagem adicionada', {
-      conversationId: data.conversation_id,
-      sender: data.sender,
+      conversationId: (data as Message).conversation_id,
+      sender: (data as Message).sender,
     });
     return data;
   } catch (error) {
@@ -331,6 +336,7 @@ export const createDeliverable = async (
   try {
     const { data, error } = await supabase
       .from('deliverables')
+      // @ts-expect-error - Supabase client não tem tipos gerados do schema. Tipos definidos manualmente em types.ts
       .insert(deliverableData)
       .select()
       .single();
@@ -338,8 +344,8 @@ export const createDeliverable = async (
     if (error) throw error;
 
     logger.debug('Entregável criado', {
-      deliverableId: data.id,
-      type: data.type,
+      deliverableId: (data as Deliverable).id,
+      type: (data as Deliverable).type,
     });
     return data;
   } catch (error) {
@@ -419,13 +425,14 @@ export const saveQuestion = async (
   try {
     const { data, error } = await supabase
       .from('question_answers')
+      // @ts-expect-error - Supabase client não tem tipos gerados do schema. Tipos definidos manualmente em types.ts
       .insert(questionData)
       .select()
       .single();
 
     if (error) throw error;
 
-    logger.debug('Pergunta salva', { questionId: data.id });
+    logger.debug('Pergunta salva', { questionId: (data as QuestionAnswer).id });
     return data;
   } catch (error) {
     logger.error('Erro ao salvar pergunta', { questionData, error });
@@ -443,6 +450,7 @@ export const updateQuestionAnswer = async (
   try {
     const { error } = await supabase
       .from('question_answers')
+      // @ts-expect-error - Supabase client não tem tipos gerados do schema. Tipos definidos manualmente em types.ts
       .update({
         answer,
         answered_at: new Date().toISOString(),

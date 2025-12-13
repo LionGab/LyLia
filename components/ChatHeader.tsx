@@ -8,7 +8,8 @@ interface ChatHeaderProps {
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ onBack, onViewConversations }) => {
-  const user = getCurrentUser();
+  // User info disponível via getCurrentUser() quando necessário
+  void getCurrentUser();
 
   const handleLogout = () => {
     logout();
