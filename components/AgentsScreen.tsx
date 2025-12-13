@@ -74,7 +74,7 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
       case 'green':
         return 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400';
       default:
-        return 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
+        return 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300';
     }
   };
 
@@ -125,23 +125,23 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
               <span className="text-base sm:text-sm">🤖</span>
               <span className="text-sm font-medium">Agentes</span>
             </button>
-            <button 
+            <button
               onClick={onViewPersonalization}
-              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-700 dark:text-slate-300 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
             >
               <span className="text-base sm:text-sm">⚙️</span>
               <span className="text-sm">Personalização</span>
             </button>
-            <button 
+            <button
               onClick={onViewTutorials}
-              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-700 dark:text-slate-300 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
             >
               <span className="text-base sm:text-sm">🎓</span>
               <span className="text-sm">Tutoriais</span>
             </button>
-            <button 
+            <button
               onClick={onViewIdeas}
-              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-700 dark:text-slate-300 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
             >
               <span className="text-base sm:text-sm">👥</span>
               <span className="text-sm">Indicações</span>
@@ -153,7 +153,7 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
             <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 px-2 uppercase tracking-wide">Histórico</h3>
             <div className="space-y-1">
               {threads.length === 0 ? (
-                <p className="text-xs text-slate-400 dark:text-slate-500 px-2 py-4 text-center">
+                <p className="text-xs text-slate-500 dark:text-slate-400 px-2 py-4 text-center">
                   Nenhuma conversa ainda
                 </p>
               ) : (
@@ -169,7 +169,7 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
                             <p className="text-xs text-slate-700 dark:text-slate-300 truncate">{thread.title}</p>
-                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{date}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{date}</p>
                           </div>
                         </div>
                       </div>
@@ -210,7 +210,7 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
               className="p-3 sm:p-2 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label={showSidebar ? 'Fechar menu' : 'Abrir menu'}
             >
-              <span className="text-xl sm:text-lg text-slate-600 dark:text-slate-400">☰</span>
+              <span className="text-xl sm:text-lg text-slate-700 dark:text-slate-300">☰</span>
             </button>
             <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white">Todos os Agentes</h2>
           </div>
@@ -227,7 +227,7 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
                 className={`px-3 py-2.5 sm:py-1.5 rounded-lg text-xs font-medium transition-colors touch-manipulation whitespace-nowrap ${
                   selectedCategory === category.id
                     ? 'bg-brand-600 dark:bg-brand-500 text-white'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:bg-slate-200 dark:active:bg-slate-700'
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 active:bg-slate-300 dark:active:bg-slate-700'
                 }`}
               >
                 {category.label}
@@ -279,7 +279,7 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
                     {agent.tags.map((tag, i) => (
                       <span
                         key={i}
-                        className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-xs text-slate-600 dark:text-slate-300 rounded-md"
+                        className="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-xs text-slate-700 dark:text-slate-300 rounded-md"
                       >
                         {tag}
                       </span>

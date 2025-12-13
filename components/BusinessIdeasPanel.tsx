@@ -51,15 +51,15 @@ const BusinessIdeasPanel: React.FC<BusinessIdeasPanelProps> = ({ onBack }) => {
               <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Modelo de Negócio</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Público-Alvo:</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Público-Alvo:</p>
                   <p className="text-slate-700 dark:text-slate-300">{selectedIdea.targetAudience}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Modelo de Receita:</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Modelo de Receita:</p>
                   <p className="text-slate-700 dark:text-slate-300">{selectedIdea.revenueModel}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Ponto de Entrada:</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Ponto de Entrada:</p>
                   <p className="text-slate-700 dark:text-slate-300">{selectedIdea.entryPoint}</p>
                 </div>
               </div>
@@ -95,7 +95,7 @@ const BusinessIdeasPanel: React.FC<BusinessIdeasPanelProps> = ({ onBack }) => {
         )}
         <div>
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Indicações</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Ideias de negócios e dicas para empreender
           </p>
         </div>
@@ -110,7 +110,7 @@ const BusinessIdeasPanel: React.FC<BusinessIdeasPanelProps> = ({ onBack }) => {
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 selectedCategory === category
                   ? 'bg-brand-600 dark:bg-brand-500 text-white'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700'
               }`}
             >
               {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -142,7 +142,7 @@ const BusinessIdeasPanel: React.FC<BusinessIdeasPanelProps> = ({ onBack }) => {
                       <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
                         {idea.category}
                       </p>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                      <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
                         {idea.description}
                       </p>
                     </div>

@@ -22,7 +22,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ onBack, onViewConversations }) 
         {onBack && (
           <button
             onClick={onBack}
-            className="p-2 sm:p-1.5 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors text-slate-600 dark:text-slate-400 touch-manipulation flex-shrink-0"
+            className="p-2 sm:p-1.5 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors text-slate-700 dark:text-slate-300 touch-manipulation flex-shrink-0"
             title="Voltar"
             aria-label="Voltar"
           >
@@ -53,7 +53,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ onBack, onViewConversations }) 
         {onViewConversations && (
           <button
             onClick={onViewConversations}
-            className="p-2 sm:p-1.5 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors text-slate-600 dark:text-slate-400 touch-manipulation"
+            className="p-2 sm:p-1.5 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors text-slate-700 dark:text-slate-300 touch-manipulation"
             title="Ver conversas"
             aria-label="Ver conversas"
           >
@@ -65,7 +65,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ onBack, onViewConversations }) 
         <ThemeToggle />
         <button
           onClick={handleLogout}
-          className="p-2 sm:p-1.5 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors text-slate-600 dark:text-slate-400 touch-manipulation"
+          className="p-2 sm:p-1.5 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors text-slate-700 dark:text-slate-300 touch-manipulation"
           title="Sair"
           aria-label="Sair"
         >

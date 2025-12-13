@@ -151,7 +151,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, agentId = 'lia-e
         </div>
         
         {/* Timestamp - abaixo da bolha */}
-        <div className={`text-[10px] mt-1 px-1 opacity-60 ${isAI ? 'text-slate-400 dark:text-slate-500' : 'text-slate-500 dark:text-slate-400'}`}>
+        <div className={`text-[10px] mt-1 px-1 opacity-70 ${isAI ? 'text-slate-500 dark:text-slate-400' : 'text-slate-600 dark:text-slate-400'}`}>
           {new Date(message.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>

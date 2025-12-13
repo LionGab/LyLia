@@ -60,7 +60,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({ messages }) => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={messages.length === 0}
-        className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-medium hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         title="Exportar conversa"
       >
         Exportar
