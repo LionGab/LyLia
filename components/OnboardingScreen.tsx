@@ -256,8 +256,12 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
       <div className="w-full max-w-4xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 transition-colors my-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-brand-500 to-purple-500 flex items-center justify-center text-white font-bold text-2xl shadow-lg mx-auto mb-4">
-            F
+          <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-brand-500 to-purple-500 flex items-center justify-center text-white font-bold text-2xl shadow-lg mx-auto mb-4 overflow-hidden">
+            <img 
+              src="/images/avatar.png" 
+              alt="Avatar" 
+              className="w-full h-full object-cover scale-125"
+            />
           </div>
           <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Bem-vindo ao Funil ERL</h1>
           <p className="text-slate-600 dark:text-slate-400">Vamos configurar seu perfil para personalizar sua experiência</p>

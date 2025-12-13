@@ -60,6 +60,14 @@
         }
       }
     </style>
+    <script>
+      // Inicializar tema antes do React carregar para evitar flash
+      (function() {
+        const theme = localStorage.getItem('lia_theme_preference') || 'light';
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(theme);
+      })();
+    </script>
     <script type="importmap">
       {
         "imports": {

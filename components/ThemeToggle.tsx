@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { getTheme, toggleTheme, initTheme } from '../services/themeService';
 
 const ThemeToggle: React.FC = () => {
-  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light');
+  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      return getTheme();
+    }
+    return 'light';
+  });
 
   useEffect(() => {
     // Inicializar tema
@@ -11,7 +16,8 @@ const ThemeToggle: React.FC = () => {
 
     // Observar mudanças no tema
     const observer = new MutationObserver(() => {
-      setCurrentTheme(getTheme());
+      const theme = getTheme();
+      setCurrentTheme(theme);
     });
 
     observer.observe(document.documentElement, {
@@ -19,12 +25,17 @@ const ThemeToggle: React.FC = () => {
       attributeFilter: ['class'],
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   const handleToggle = () => {
     const newTheme = toggleTheme();
     setCurrentTheme(newTheme);
+    // Forçar atualização visual
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(newTheme);
   };
 
   return (

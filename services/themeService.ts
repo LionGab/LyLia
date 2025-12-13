@@ -8,8 +8,21 @@ const THEME_STORAGE_KEY = 'lia_theme_preference';
 export const getTheme = (): Theme => {
   if (typeof window === 'undefined') return 'light';
   
+  // Verificar localStorage primeiro
   const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as Theme;
-  return savedTheme || 'light';
+  if (savedTheme === 'light' || savedTheme === 'dark') {
+    return savedTheme;
+  }
+  
+  // Fallback: verificar classe no HTML
+  if (document.documentElement.classList.contains('dark')) {
+    return 'dark';
+  }
+  if (document.documentElement.classList.contains('light')) {
+    return 'light';
+  }
+  
+  return 'light';
 };
 
 /**
