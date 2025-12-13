@@ -447,7 +447,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
                       className={`absolute right-2 top-2 p-2 rounded-lg transition-all ${
                         isRecording
                           ? 'bg-red-500 text-white animate-pulse'
-                          : 'bg-slate-100 dark:bg-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-500'
+                          : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-500'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                       aria-label={isRecording ? 'Parar gravação' : 'Gravar áudio'}
                       title={isRecording ? 'Parar gravação' : 'Gravar áudio e transcrever automaticamente'}
@@ -492,7 +492,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
                     className={`absolute right-2 top-2 p-2 rounded-lg transition-all ${
                       isRecording
                         ? 'bg-red-500 text-white animate-pulse'
-                        : 'bg-slate-100 dark:bg-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-500'
+                        : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-500'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                     aria-label={isRecording ? 'Parar gravação' : 'Gravar áudio'}
                     title={isRecording ? 'Parar gravação' : 'Gravar áudio e transcrever automaticamente'}
@@ -545,7 +545,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
             {step > 1 && (
               <button
                 onClick={handleBack}
-                className="flex-1 sm:flex-none px-6 py-3 sm:py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg active:bg-slate-200 dark:active:bg-slate-600 transition-colors touch-manipulation"
+                className="flex-1 sm:flex-none px-6 py-3 sm:py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg active:bg-slate-300 dark:active:bg-slate-600 transition-colors touch-manipulation"
               >
                 Voltar
               </button>

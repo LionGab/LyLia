@@ -439,14 +439,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
 
       {/* Toolbar Minimalista - Mobile-first */}
       {messages.length > 0 && (
-        <div className="flex-none bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-3 sm:px-6 py-2 transition-colors overflow-x-auto">
+        <div className="flex-none bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-2 transition-colors overflow-x-auto">
           <div className="flex items-center justify-between gap-2 min-w-max">
             <div className="flex items-center gap-2">
               <ExportButton messages={messages} />
             </div>
             <button
               onClick={handleClearThread}
-              className="p-2 sm:p-1.5 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors text-slate-400 dark:text-slate-500 active:text-red-600 dark:active:text-red-400 touch-manipulation"
+              className="p-2 sm:p-1.5 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors text-slate-500 dark:text-slate-500 active:text-red-600 dark:active:text-red-400 touch-manipulation"
               title="Limpar conversa"
               aria-label="Limpar conversa"
             >
@@ -476,7 +476,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
       </main>
 
       {/* Input Area - Mobile-first */}
-      <footer className="flex-none bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-3 sm:px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sticky bottom-0 z-10 transition-colors">
+      <footer className="flex-none bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-3 sm:px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sticky bottom-0 z-10 transition-colors">
         {/* Preview de imagem */}
         {imagePreviewUrl && (
           <div className="relative mb-3 p-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800">
@@ -523,7 +523,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
           {!isRecording && (
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex-none w-9 h-9 rounded-full flex items-center justify-center transition-colors text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+              className="flex-none w-9 h-9 rounded-full flex items-center justify-center transition-colors text-slate-500 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
               aria-label="Anexar imagem"
               disabled={isLoading}
               title="Anexar imagem"
@@ -551,7 +551,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
               </button>
               <button
                 onClick={handleCancelRecording}
-                className="px-4 py-2.5 sm:py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium active:bg-slate-300 dark:active:bg-slate-600 transition-colors touch-manipulation"
+                className="px-4 py-2.5 sm:py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium active:bg-slate-300 dark:active:bg-slate-600 transition-colors touch-manipulation"
               >
                 Cancelar
               </button>
@@ -563,7 +563,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
               onChange={handleInputResize}
               onKeyDown={handleKeyDown}
               placeholder={selectedImage ? "Descreva a imagem..." : audioPreviewUrl ? "Adicione uma mensagem (opcional)..." : "Mensagem para a Lyla.IA..."}
-              className="flex-1 bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 resize-none max-h-32 py-2.5 sm:py-2 px-2 text-base sm:text-base leading-relaxed"
+              className="flex-1 bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200 placeholder-slate-500 dark:placeholder-slate-500 resize-none max-h-32 py-2.5 sm:py-2 px-2 text-base sm:text-base leading-relaxed"
               rows={1}
               disabled={isLoading}
             />

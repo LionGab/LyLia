@@ -115,7 +115,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-xs text-slate-400 dark:text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-500">
             Apenas usuários autorizados podem acessar esta plataforma.
           </p>
         </div>
