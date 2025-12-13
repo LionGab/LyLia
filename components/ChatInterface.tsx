@@ -10,6 +10,12 @@ import { initTheme } from '../services/themeService';
 import { OnboardingData } from '../types/onboarding';
 import { getThreadMessages, saveThreadMessages, createThread } from '../services/threadService';
 import { logger } from '../services/logger';
+import { 
+  createMemoryConversation, 
+  saveMemoryMessage, 
+  loadMemoryMessages
+} from '../services/memoryService';
+import { getAgentConfig, type AgentId } from '../config/agents';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from './TypingIndicator';
 import ChatHeader from './ChatHeader';
@@ -49,6 +55,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | undefined>(undefined);
   const [currentThreadId, setCurrentThreadId] = useState<string | null>(threadId || null);
+  const [isSupabaseThread, setIsSupabaseThread] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -78,55 +85,95 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
     }
     
     // Load thread messages or create new thread
-    if (threadId) {
-      const threadMessages = getThreadMessages(threadId);
-      if (threadMessages.length > 0) {
-        setMessages(threadMessages);
-      } else {
+    const loadConversation = async () => {
+      if (threadId) {
+        // Tentar carregar do Supabase primeiro
+        try {
+          const supabaseMessages = await loadMemoryMessages(threadId, true);
+          if (supabaseMessages.length > 0) {
+            setMessages(supabaseMessages);
+            setIsSupabaseThread(true);
+            setCurrentThreadId(threadId);
+            return;
+          }
+        } catch (error) {
+          logger.warn('Falha ao carregar do Supabase, tentando localStorage', { error });
+        }
+        
+        // Fallback: localStorage
+        const threadMessages = getThreadMessages(threadId);
+        if (threadMessages.length > 0) {
+          setMessages(threadMessages);
+          setIsSupabaseThread(false);
+        } else {
+          initializeWelcomeMessage(true);
+        }
+        setCurrentThreadId(threadId);
+      } else if (!currentThreadId) {
+        // Create new thread com memória
+        const currentAgentId = (agentId || 'lia-erl') as AgentId;
+        const { id, isSupabase } = await createMemoryConversation(currentAgentId);
+        setCurrentThreadId(id);
+        setIsSupabaseThread(isSupabase);
+        if (onThreadChange) {
+          onThreadChange(id);
+        }
         initializeWelcomeMessage(true);
       }
-      setCurrentThreadId(threadId);
-    } else if (!currentThreadId) {
-      // Create new thread
-      const newThread = createThread();
-      setCurrentThreadId(newThread.id);
-      if (onThreadChange) {
-        onThreadChange(newThread.id);
-      }
-      initializeWelcomeMessage(true);
-    }
+    };
+    
+    loadConversation();
     
     setIsInitialized(true);
   }, [threadId]);
 
-  // Save messages to thread whenever they change
+  // Save messages to memory (Supabase ou localStorage) whenever they change
   useEffect(() => {
     if (isInitialized && currentThreadId && messages.length > 0) {
-      saveThreadMessages(currentThreadId, messages);
+      // Salvar última mensagem no Supabase (se aplicável)
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && isSupabaseThread) {
+        saveMemoryMessage(currentThreadId, lastMessage, true).catch(() => {
+          // Se falhar, salvar no localStorage
+          saveThreadMessages(currentThreadId, messages);
+        });
+      } else {
+        // Fallback: localStorage
+        saveThreadMessages(currentThreadId, messages);
+      }
     }
-  }, [messages, isInitialized, currentThreadId]);
+  }, [messages, isInitialized, currentThreadId, isSupabaseThread]);
 
   const initializeWelcomeMessage = (useOnboarding: boolean = true) => {
-    // Criar mensagem de boas-vindas personalizada baseada no onboarding
+    // Criar mensagem de boas-vindas personalizada baseada no agente e onboarding
+    const currentAgentId = (agentId || 'lia-erl') as AgentId;
+    const agentConfig = getAgentConfig(currentAgentId);
     const data = useOnboarding ? onboardingData : undefined;
-    let welcomeText = "Olá! Eu sou a Lyla.IA, sua mentora de negócios digitais com o Método ERL.\n\n";
+    
+    let welcomeText = `Olá! Eu sou ${agentConfig.name}, ${agentConfig.title}.\n\n`;
+    welcomeText += `${agentConfig.description}\n\n`;
     
     if (data?.profissao || data?.habilidadePrincipal) {
-      welcomeText += "Vou te ajudar a estruturar seu produto, seu funil e seu conteúdo.\n\n";
       welcomeText += "Como posso te ajudar hoje?";
     } else {
-      welcomeText += "Vou te ajudar a estruturar seu produto, seu funil e seu conteúdo.\n\n";
       welcomeText += "Para começarmos, me conta: qual é a sua profissão ou habilidade principal hoje?";
     }
     
-    setMessages([
-      {
-        id: `welcome-${Date.now()}`,
-        text: welcomeText,
-        sender: Sender.AI,
-        timestamp: Date.now(),
-      },
-    ]);
+    const welcomeMessage: Message = {
+      id: `welcome-${Date.now()}`,
+      text: welcomeText,
+      sender: Sender.AI,
+      timestamp: Date.now(),
+    };
+    
+    setMessages([welcomeMessage]);
+    
+    // Salvar mensagem de boas-vindas
+    if (currentThreadId) {
+      saveMemoryMessage(currentThreadId, welcomeMessage, isSupabaseThread).catch(() => {
+        // Ignorar erro silenciosamente
+      });
+    }
   };
 
   const scrollToBottom = () => {
@@ -157,6 +204,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    
+    // Salvar mensagem do usuário imediatamente
+    if (currentThreadId) {
+      await saveMemoryMessage(currentThreadId, userMessage, isSupabaseThread);
+    }
+    
     setInputText('');
     setIsLoading(true);
 
@@ -217,6 +270,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
         };
 
         setMessages((prev) => [...prev, aiMessage]);
+        
+        // Salvar mensagem da IA
+        if (currentThreadId) {
+          await saveMemoryMessage(currentThreadId, aiMessage, isSupabaseThread);
+        }
+        
         setCopywriterResponse(null); // Clear copywriter response in normal mode
       }
     } catch (error) {
@@ -429,10 +488,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
         </div>
       )}
 
-      {/* Chat Area - Mobile-first */}
+      {/* Chat Area - GPT Mobile Style */}
       <main className="flex-1 overflow-y-auto scroll-smooth bg-white dark:bg-slate-900 transition-colors overscroll-contain">
         {messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg} />
+          <MessageBubble key={msg.id} message={msg} agentId={agentId || 'lia-erl'} />
         ))}
         
         {showAnalysis && analysis && (
@@ -496,16 +555,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
             className="hidden"
           />
           
-          {/* Botão de imagem */}
+          {/* Botão de anexar imagem/arquivo - Estilo GPT Mobile */}
           {!isRecording && (
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex-none w-11 h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-colors text-slate-500 dark:text-slate-400 active:bg-slate-200 dark:active:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+              className="flex-none w-9 h-9 rounded-full flex items-center justify-center transition-colors text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
               aria-label="Anexar imagem"
               disabled={isLoading}
+              title="Anexar imagem"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 sm:w-5 sm:h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5h.008v.008h-.008zm12.75-6.75l-6.148-6.148a1.125 1.125 0 00-1.584 0L6.25 12.251m12.75-6.75a6 6 0 010 6-6 6 0 01-6 6H3.75a3.75 3.75 0 01-3.75-3.75V11.25a3.75 3.75 0 013.75-3.75h1.5" />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <rect x="3" y="3" width="18" height="18" rx="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="8.5" cy="8.5" r="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
               </svg>
             </button>
           )}
