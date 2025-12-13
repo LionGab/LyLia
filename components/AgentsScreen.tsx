@@ -16,11 +16,27 @@ interface AgentsScreenProps {
 
 const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistory, onViewTutorials, onViewIdeas, onViewPersonalization }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('todos');
-  const [showSidebar, setShowSidebar] = useState(true);
+  // Mobile-first: sidebar fechado por padrão no mobile, aberto no desktop
+  const [showSidebar, setShowSidebar] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768; // md breakpoint
+    }
+    return false;
+  });
   const user = getCurrentUser();
 
   useEffect(() => {
     initTheme();
+    
+    // Ajustar sidebar quando redimensionar
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setShowSidebar(true);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Carregar histórico do localStorage
@@ -105,27 +121,27 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
 
           {/* Navigation */}
           <nav className="p-2 sm:p-3 space-y-1">
-            <button className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 rounded-lg text-left active:bg-brand-100 dark:active:bg-brand-900/30 transition-colors touch-manipulation">
+            <button className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 rounded-lg text-left active:bg-brand-100 dark:active:bg-brand-900/30 transition-colors touch-manipulation min-h-[44px]">
               <span className="text-base sm:text-sm">🤖</span>
               <span className="text-sm font-medium">Agentes</span>
             </button>
             <button 
               onClick={onViewPersonalization}
-              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation"
+              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
             >
               <span className="text-base sm:text-sm">⚙️</span>
               <span className="text-sm">Personalização</span>
             </button>
             <button 
               onClick={onViewTutorials}
-              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation"
+              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
             >
               <span className="text-base sm:text-sm">🎓</span>
               <span className="text-sm">Tutoriais</span>
             </button>
             <button 
               onClick={onViewIdeas}
-              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation"
+              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
             >
               <span className="text-base sm:text-sm">👥</span>
               <span className="text-sm">Indicações</span>
@@ -188,8 +204,8 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => setShowSidebar(!showSidebar)}
-              className="p-2.5 sm:p-2 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors touch-manipulation"
-              aria-label="Abrir menu"
+              className="p-3 sm:p-2 active:bg-slate-100 dark:active:bg-slate-800 rounded-lg transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label={showSidebar ? 'Fechar menu' : 'Abrir menu'}
             >
               <span className="text-xl sm:text-lg text-slate-600 dark:text-slate-400">☰</span>
             </button>
@@ -226,18 +242,16 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 max-w-7xl mx-auto w-full">
             {filteredAgents.map((agent) => (
-              <div
+              <button
                 key={agent.id}
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 active:border-brand-300 dark:active:border-brand-500 active:shadow-lg dark:active:shadow-xl transition-all cursor-pointer group touch-manipulation"
+                type="button"
+                className="w-full bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 active:border-brand-300 dark:active:border-brand-500 active:shadow-lg dark:active:shadow-xl transition-all text-left touch-manipulation min-h-[44px]"
                 onClick={() => onSelectAgent(agent.id)}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`w-12 h-12 rounded-xl ${getAgentColorClass(agent.color)} flex items-center justify-center text-xl shadow-sm`}>
+                  <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${getAgentColorClass(agent.color)} flex items-center justify-center text-xl sm:text-2xl shadow-sm flex-shrink-0`}>
                     {agent.icon}
                   </div>
-                  <button className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-opacity">
-                    <span className="text-xs text-slate-400 dark:text-slate-500">🕐</span>
-                  </button>
                 </div>
 
                 <div>
@@ -255,7 +269,7 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
                   <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{agent.title}</p>
                   <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{agent.description}</p>
                 </div>
-              </div>
+              </button>
             ))}
             </div>
           )}
