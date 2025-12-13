@@ -1,6 +1,6 @@
 import { GoogleGenAI, Content } from "@google/genai";
 import { LIA_SYSTEM_PROMPT, APP_NAME } from "../constants";
-import { selectPromptByAgent } from "../constants/agentPrompts";
+import { getAgentConfig } from "../config/agents";
 import { Message, Sender } from "../types";
 import { OnboardingData } from "../types/onboarding";
 import { AI_CONFIG } from "../constants/aiConfig";
@@ -234,21 +234,23 @@ export const sendContentToGemini = async (
 
   // Construir contexto enriquecido
   const enrichedContext = enrichContext(currentHistory, onboardingContext);
-  // Selecionar prompt baseado no agentId
-  let basePrompt = LIA_SYSTEM_PROMPT;
   
-  // Se agentId for fornecido e tiver prompt específico, usar
-  if (agentId) {
-    const agentPrompt = selectPromptByAgent(agentId);
-    if (agentPrompt) {
-      basePrompt = agentPrompt;
-    }
+  // Resolver agente via registry (fonte única)
+  const agentConfig = getAgentConfig(agentId);
+  if (agentId && agentConfig.id !== agentId) {
+    logger.warn('Agente não encontrado no registry. Usando fallback.', {
+      agentId,
+      fallbackAgentId: agentConfig.id,
+    });
   }
+
+  let basePrompt = agentConfig.systemPrompt || LIA_SYSTEM_PROMPT;
   
   let contextPrompt = basePrompt;
   
   // Adicionar instruções de estilo de resposta se disponível
-  if (onboardingContext?.estiloResposta) {
+  // Nota: aplica apenas se o agente suportar
+  if (onboardingContext?.estiloResposta && agentConfig.capabilities.supportsUserStyle) {
     const styleInstructions: Record<string, string> = {
       'direto': 'IMPORTANTE: Seja direto e objetivo. Respostas curtas, sem enrolação. Vá direto ao ponto.',
       'amigavel': 'IMPORTANTE: Use tom amigável e próximo. Fale como um amigo experiente, caloroso e acessível.',
@@ -259,7 +261,7 @@ export const sendContentToGemini = async (
     
     const styleInstruction = styleInstructions[onboardingContext.estiloResposta];
     if (styleInstruction) {
-      contextPrompt = `${LIA_SYSTEM_PROMPT}\n\n[ESTILO DE RESPOSTA PREFERIDO PELO USUÁRIO]\n${styleInstruction}`;
+      contextPrompt = `${basePrompt}\n\n[ESTILO DE RESPOSTA PREFERIDO PELO USUÁRIO]\n${styleInstruction}`;
     }
   }
   
@@ -269,7 +271,7 @@ export const sendContentToGemini = async (
   }
   
   // Adicionar observações específicas do usuário se houver
-  if (onboardingContext?.observacoes) {
+  if (onboardingContext?.observacoes && agentConfig.capabilities.supportsUserNotes) {
     contextPrompt = `${contextPrompt}\n\n[OBSERVAÇÕES ESPECÍFICAS DO USUÁRIO]\n${onboardingContext.observacoes}\n\nSiga essas observações ao responder.`;
   }
 
