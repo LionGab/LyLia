@@ -10,7 +10,8 @@
     NODE_VERSION = "18"
 
 # Redirecionamentos para SPA (Single Page Application)
-# Todas as rotas devem ir para index.html
+# O Netlify serve arquivos estáticos automaticamente antes de aplicar redirects
+# Este redirect só aplica para rotas que não correspondem a arquivos existentes
 [[redirects]]
   from = "/*"
   to = "/index.html"
