@@ -12,9 +12,27 @@ interface AgentsScreenProps {
   onViewTutorials?: () => void;
   onViewIdeas?: () => void;
   onViewPersonalization?: () => void;
+  onViewDiagnostic?: () => void;
+  onViewFinancial?: () => void;
+  onViewRecommendations?: () => void;
+  onViewFunnel?: () => void;
+  onViewContent?: () => void;
+  onViewSalesScript?: () => void;
 }
 
-const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistory, onViewTutorials, onViewIdeas, onViewPersonalization }) => {
+const AgentsScreen: React.FC<AgentsScreenProps> = ({ 
+  onSelectAgent, 
+  onViewHistory, 
+  onViewTutorials, 
+  onViewIdeas, 
+  onViewPersonalization,
+  onViewDiagnostic,
+  onViewFinancial,
+  onViewRecommendations,
+  onViewFunnel,
+  onViewContent,
+  onViewSalesScript,
+}) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('todos');
   const [threads, setThreads] = useState<ReturnType<typeof getAllThreads>>([]);
   // Mobile-first: sidebar fechado por padrão no mobile, aberto no desktop
@@ -120,32 +138,102 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
           </div>
 
           {/* Navigation */}
-          <nav className="p-2 sm:p-3 space-y-1">
+          <nav className="p-2 sm:p-3 space-y-1 overflow-y-auto">
             <button className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 rounded-lg text-left active:bg-brand-100 dark:active:bg-brand-900/30 transition-colors touch-manipulation min-h-[44px]">
               <span className="text-base sm:text-sm">🤖</span>
               <span className="text-sm font-medium">Agentes</span>
             </button>
-            <button 
-              onClick={onViewPersonalization}
-              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
-            >
-              <span className="text-base sm:text-sm">⚙️</span>
-              <span className="text-sm">Personalização</span>
-            </button>
-            <button 
-              onClick={onViewTutorials}
-              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
-            >
-              <span className="text-base sm:text-sm">🎓</span>
-              <span className="text-sm">Tutoriais</span>
-            </button>
-            <button 
-              onClick={onViewIdeas}
-              className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
-            >
-              <span className="text-base sm:text-sm">👥</span>
-              <span className="text-sm">Indicações</span>
-            </button>
+            
+            {/* Novas Funcionalidades */}
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-700 mt-2">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 px-3 uppercase tracking-wide">Ferramentas</p>
+              {onViewDiagnostic && (
+                <button 
+                  onClick={onViewDiagnostic}
+                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+                >
+                  <span className="text-base sm:text-sm">🔍</span>
+                  <span className="text-sm">Diagnóstico</span>
+                </button>
+              )}
+              {onViewRecommendations && (
+                <button 
+                  onClick={onViewRecommendations}
+                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+                >
+                  <span className="text-base sm:text-sm">💡</span>
+                  <span className="text-sm">Recomendações</span>
+                </button>
+              )}
+              {onViewFunnel && (
+                <button 
+                  onClick={onViewFunnel}
+                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+                >
+                  <span className="text-base sm:text-sm">📊</span>
+                  <span className="text-sm">Funil ERL</span>
+                </button>
+              )}
+              {onViewContent && (
+                <button 
+                  onClick={onViewContent}
+                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+                >
+                  <span className="text-base sm:text-sm">✍️</span>
+                  <span className="text-sm">Gerar Conteúdo</span>
+                </button>
+              )}
+              {onViewSalesScript && (
+                <button 
+                  onClick={onViewSalesScript}
+                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+                >
+                  <span className="text-base sm:text-sm">📞</span>
+                  <span className="text-sm">Script de Vendas</span>
+                </button>
+              )}
+              {onViewFinancial && (
+                <button 
+                  onClick={onViewFinancial}
+                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+                >
+                  <span className="text-base sm:text-sm">💰</span>
+                  <span className="text-sm">Simulador Financeiro</span>
+                </button>
+              )}
+            </div>
+
+            {/* Menu Original */}
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-700 mt-2">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 px-3 uppercase tracking-wide">Menu</p>
+              {onViewPersonalization && (
+                <button 
+                  onClick={onViewPersonalization}
+                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+                >
+                  <span className="text-base sm:text-sm">⚙️</span>
+                  <span className="text-sm">Personalização</span>
+                </button>
+              )}
+              {onViewTutorials && (
+                <button 
+                  onClick={onViewTutorials}
+                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+                >
+                  <span className="text-base sm:text-sm">🎓</span>
+                  <span className="text-sm">Tutoriais</span>
+                </button>
+              )}
+              {onViewIdeas && (
+                <button 
+                  onClick={onViewIdeas}
+                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
+                >
+                  <span className="text-base sm:text-sm">👥</span>
+                  <span className="text-sm">Indicações</span>
+                </button>
+              )}
+            </div>
           </nav>
 
           {/* History */}
@@ -238,6 +326,72 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({ onSelectAgent, onViewHistor
 
         {/* Agents Grid */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-slate-50 dark:bg-slate-900 transition-colors overscroll-contain min-h-0">
+          {/* Ferramentas Rápidas */}
+          <div className="max-w-7xl mx-auto w-full mb-6">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Ferramentas Rápidas</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {onViewDiagnostic && (
+                <button
+                  onClick={onViewDiagnostic}
+                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
+                >
+                  <div className="text-2xl mb-2">🔍</div>
+                  <div className="text-xs font-medium text-slate-900 dark:text-white">Diagnóstico</div>
+                </button>
+              )}
+              {onViewRecommendations && (
+                <button
+                  onClick={onViewRecommendations}
+                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
+                >
+                  <div className="text-2xl mb-2">💡</div>
+                  <div className="text-xs font-medium text-slate-900 dark:text-white">Recomendações</div>
+                </button>
+              )}
+              {onViewFunnel && (
+                <button
+                  onClick={onViewFunnel}
+                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
+                >
+                  <div className="text-2xl mb-2">📊</div>
+                  <div className="text-xs font-medium text-slate-900 dark:text-white">Funil ERL</div>
+                </button>
+              )}
+              {onViewContent && (
+                <button
+                  onClick={onViewContent}
+                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
+                >
+                  <div className="text-2xl mb-2">✍️</div>
+                  <div className="text-xs font-medium text-slate-900 dark:text-white">Conteúdo</div>
+                </button>
+              )}
+              {onViewSalesScript && (
+                <button
+                  onClick={onViewSalesScript}
+                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
+                >
+                  <div className="text-2xl mb-2">📞</div>
+                  <div className="text-xs font-medium text-slate-900 dark:text-white">Script</div>
+                </button>
+              )}
+              {onViewFinancial && (
+                <button
+                  onClick={onViewFinancial}
+                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
+                >
+                  <div className="text-2xl mb-2">💰</div>
+                  <div className="text-xs font-medium text-slate-900 dark:text-white">Simulador</div>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Agentes */}
+          <div className="max-w-7xl mx-auto w-full">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Agentes de IA</h3>
+          </div>
+
           {filteredAgents.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <p className="text-slate-500 dark:text-slate-400">Nenhum agente encontrado</p>

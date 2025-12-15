@@ -7,12 +7,20 @@ import TutorialsPanel from './components/TutorialsPanel';
 import BusinessIdeasPanel from './components/BusinessIdeasPanel';
 import PersonalizationPanel from './components/PersonalizationPanel';
 import ConversationsList from './components/ConversationsList';
+import DiagnosticFlow from './components/DiagnosticFlow';
+import FinancialSimulator from './components/FinancialSimulator';
+import ProductRecommendation from './components/ProductRecommendation';
+import FunnelBuilder from './components/FunnelBuilder';
+import ContentGenerator from './components/ContentGenerator';
+import SalesScriptGenerator from './components/SalesScriptGenerator';
+import InstallPrompt from './components/InstallPrompt';
 import { isAuthenticated, getCurrentUser } from './services/authService';
 import { initTheme } from './services/themeService';
 import { OnboardingData } from './types/onboarding';
+import { DiagnosticResult } from './types/diagnostic';
 import { createThread } from './services/threadService';
 
-type ViewMode = 'agents' | 'chat' | 'tutorials' | 'ideas' | 'personalization' | 'conversations';
+type ViewMode = 'agents' | 'chat' | 'tutorials' | 'ideas' | 'personalization' | 'conversations' | 'diagnostic' | 'financial' | 'recommendations' | 'funnel' | 'content' | 'sales-script';
 
 const App: React.FC = () => {
   const [authenticated, setAuthenticated] = useState<boolean>(false);
@@ -120,6 +128,34 @@ const App: React.FC = () => {
     setCurrentView('personalization');
   };
 
+  const handleViewDiagnostic = () => {
+    setCurrentView('diagnostic');
+  };
+
+  const handleViewFinancial = () => {
+    setCurrentView('financial');
+  };
+
+  const handleViewRecommendations = () => {
+    setCurrentView('recommendations');
+  };
+
+  const handleViewFunnel = () => {
+    setCurrentView('funnel');
+  };
+
+  const handleViewContent = () => {
+    setCurrentView('content');
+  };
+
+  const handleViewSalesScript = () => {
+    setCurrentView('sales-script');
+  };
+
+  const handleDiagnosticComplete = (_result: DiagnosticResult) => {
+    setCurrentView('agents');
+  };
+
   // Mostrar loading enquanto verifica autenticação
   if (isChecking) {
     return (
@@ -170,17 +206,74 @@ const App: React.FC = () => {
     );
   }
 
+  if (currentView === 'diagnostic') {
+    return (
+      <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors">
+        <DiagnosticFlow onComplete={handleDiagnosticComplete} onBack={handleBackToAgents} />
+      </div>
+    );
+  }
+
+  if (currentView === 'financial') {
+    return (
+      <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors">
+        <FinancialSimulator onBack={handleBackToAgents} />
+      </div>
+    );
+  }
+
+  if (currentView === 'recommendations') {
+    return (
+      <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors">
+        <ProductRecommendation onBack={handleBackToAgents} />
+      </div>
+    );
+  }
+
+  if (currentView === 'funnel') {
+    return (
+      <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors">
+        <FunnelBuilder onBack={handleBackToAgents} />
+      </div>
+    );
+  }
+
+  if (currentView === 'content') {
+    return (
+      <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors">
+        <ContentGenerator onBack={handleBackToAgents} />
+      </div>
+    );
+  }
+
+  if (currentView === 'sales-script') {
+    return (
+      <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors">
+        <SalesScriptGenerator onBack={handleBackToAgents} />
+      </div>
+    );
+  }
+
   if (currentView === 'agents') {
     return (
-      <div className="w-full h-screen">
-        <AgentsScreen 
-          onSelectAgent={handleSelectAgent} 
-          onViewHistory={handleViewConversations}
-          onViewTutorials={handleViewTutorials}
-          onViewIdeas={handleViewIdeas}
-          onViewPersonalization={handleViewPersonalization}
-        />
-      </div>
+      <>
+        <div className="w-full h-screen">
+          <AgentsScreen 
+            onSelectAgent={handleSelectAgent} 
+            onViewHistory={handleViewConversations}
+            onViewTutorials={handleViewTutorials}
+            onViewIdeas={handleViewIdeas}
+            onViewPersonalization={handleViewPersonalization}
+            onViewDiagnostic={handleViewDiagnostic}
+            onViewFinancial={handleViewFinancial}
+            onViewRecommendations={handleViewRecommendations}
+            onViewFunnel={handleViewFunnel}
+            onViewContent={handleViewContent}
+            onViewSalesScript={handleViewSalesScript}
+          />
+        </div>
+        <InstallPrompt />
+      </>
     );
   }
 
@@ -199,15 +292,18 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white dark:bg-slate-900 transition-colors">
-      <ChatInterface 
-        agentId={selectedAgent} 
-        onBack={handleBackToAgents}
-        threadId={currentThreadId}
-        onThreadChange={handleThreadChange}
-        onViewConversations={handleViewConversationsFromChat}
-      />
-    </div>
+    <>
+      <div className="min-h-screen w-full bg-white dark:bg-slate-900 transition-colors">
+        <ChatInterface 
+          agentId={selectedAgent} 
+          onBack={handleBackToAgents}
+          threadId={currentThreadId}
+          onThreadChange={handleThreadChange}
+          onViewConversations={handleViewConversationsFromChat}
+        />
+      </div>
+      <InstallPrompt />
+    </>
   );
 };
 

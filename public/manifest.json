@@ -1,0 +1,42 @@
+{
+  "name": "Funil ERL - Assistente de Negócios",
+  "short_name": "Funil ERL",
+  "description": "Assistente de IA especialista no Método ERL para criação de produtos digitais e estratégias de vendas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#db2777",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/logo-main.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo-main.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "education"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Diagnóstico",
+      "short_name": "Diagnóstico",
+      "description": "Faça seu diagnóstico de perfil",
+      "url": "/?action=diagnostic",
+      "icons": [{ "src": "/images/logo-main.jpg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Simulador Financeiro",
+      "short_name": "Simulador",
+      "description": "Simule resultados financeiros",
+      "url": "/?action=financial",
+      "icons": [{ "src": "/images/logo-main.jpg", "sizes": "192x192" }]
+    }
+  ]
+}
