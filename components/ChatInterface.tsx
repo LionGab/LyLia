@@ -7,13 +7,8 @@ import { getCurrentUser } from '../services/authService';
 import { checkAndMigrate } from '../services/migrationService';
 import { initTheme } from '../services/themeService';
 import { OnboardingData } from '../types/onboarding';
-import { getThreadMessages, saveThreadMessages } from '../services/threadService';
+import { getThreadMessages, saveThreadMessages, createThread } from '../services/threadService';
 import { logger } from '../services/logger';
-import { 
-  createMemoryConversation, 
-  saveMemoryMessage, 
-  loadMemoryMessages
-} from '../services/memoryService';
 import { getAgentConfig, type AgentId } from '../config/agents';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from './TypingIndicator';
@@ -51,7 +46,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
   const [copywriterResponse, setCopywriterResponse] = useState<CopywriterResponseType | null>(null);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | undefined>(undefined);
   const [currentThreadId, setCurrentThreadId] = useState<string | null>(threadId || null);
-  const [isSupabaseThread, setIsSupabaseThread] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -81,38 +75,21 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
     }
     
     // Load thread messages or create new thread
-    const loadConversation = async () => {
+    const loadConversation = () => {
       if (threadId) {
-        // Tentar carregar do Supabase primeiro
-        try {
-          const supabaseMessages = await loadMemoryMessages(threadId, true);
-          if (supabaseMessages.length > 0) {
-            setMessages(supabaseMessages);
-            setIsSupabaseThread(true);
-            setCurrentThreadId(threadId);
-            return;
-          }
-        } catch (error) {
-          logger.warn('Falha ao carregar do Supabase, tentando localStorage', { error });
-        }
-        
-        // Fallback: localStorage
         const threadMessages = getThreadMessages(threadId);
         if (threadMessages.length > 0) {
           setMessages(threadMessages);
-          setIsSupabaseThread(false);
         } else {
           initializeWelcomeMessage(true);
         }
         setCurrentThreadId(threadId);
       } else if (!currentThreadId) {
-        // Create new thread com memória
-        const currentAgentId = (agentId || 'lia-erl') as AgentId;
-        const { id, isSupabase } = await createMemoryConversation(currentAgentId);
-        setCurrentThreadId(id);
-        setIsSupabaseThread(isSupabase);
+        // Create new thread
+        const newThread = createThread();
+        setCurrentThreadId(newThread.id);
         if (onThreadChange) {
-          onThreadChange(id);
+          onThreadChange(newThread.id);
         }
         initializeWelcomeMessage(true);
       }
@@ -123,22 +100,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ agentId, onBack, threadId
     setIsInitialized(true);
   }, [threadId]);
 
-  // Save messages to memory (Supabase ou localStorage) whenever they change
+  // Save messages to localStorage whenever they change
   useEffect(() => {
     if (isInitialized && currentThreadId && messages.length > 0) {
-      // Salvar última mensagem no Supabase (se aplicável)
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage && isSupabaseThread) {
-        saveMemoryMessage(currentThreadId, lastMessage, true).catch(() => {
-          // Se falhar, salvar no localStorage
-          saveThreadMessages(currentThreadId, messages);
-        });
-      } else {
-        // Fallback: localStorage
-        saveThreadMessages(currentThreadId, messages);
-      }
+      saveThreadMessages(currentThreadId, messages);
     }
-  }, [messages, isInitialized, currentThreadId, isSupabaseThread]);
+  }, [messages, isInitialized, currentThreadId]);
 
   const initializeWelcomeMessage = (useOnboarding: boolean = true) => {
     // Criar mensagem de boas-vindas personalizada baseada no agente e onboarding

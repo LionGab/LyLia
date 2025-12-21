@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@google/genai": "^1.31.0",
-    "@supabase/supabase-js": "^2.87.1",
     "date-fns": "^4.1.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
