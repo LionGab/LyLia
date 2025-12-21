@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { AGENTS, CATEGORIES, Agent } from '../types/agents';
+import { AGENTS, Agent } from '../types/agents';
 import { getCurrentUser } from '../services/authService';
-import { getAllThreads, Thread } from '../services/threadService';
-import { Message } from '../types';
+import { getAllThreads } from '../services/threadService';
 import { initTheme } from '../services/themeService';
 import ThemeToggle from './ThemeToggle';
 
@@ -20,11 +19,11 @@ interface AgentsScreenProps {
   onViewSalesScript?: () => void;
 }
 
-const AgentsScreen: React.FC<AgentsScreenProps> = ({ 
-  onSelectAgent, 
-  onViewHistory, 
-  onViewTutorials, 
-  onViewIdeas, 
+const AgentsScreen: React.FC<AgentsScreenProps> = ({
+  onSelectAgent,
+  onViewHistory,
+  onViewTutorials,
+  onViewIdeas,
   onViewPersonalization,
   onViewDiagnostic,
   onViewFinancial,
@@ -33,12 +32,10 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({
   onViewContent,
   onViewSalesScript,
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('todos');
   const [threads, setThreads] = useState<ReturnType<typeof getAllThreads>>([]);
-  // Mobile-first: sidebar fechado por padrão no mobile, aberto no desktop
   const [showSidebar, setShowSidebar] = useState(() => {
     if (typeof window !== 'undefined') {
-      return window.innerWidth >= 768; // md breakpoint
+      return window.innerWidth >= 768;
     }
     return false;
   });
@@ -46,40 +43,31 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({
 
   useEffect(() => {
     initTheme();
-    
-    // Carregar threads
+
     const loadThreads = () => {
       setThreads(getAllThreads());
     };
-    
+
     loadThreads();
-    
-    // Atualizar threads periodicamente e quando a janela recebe foco
+
     const interval = setInterval(loadThreads, 2000);
     const handleFocus = () => loadThreads();
     window.addEventListener('focus', handleFocus);
-    
-    // Ajustar sidebar quando redimensionar
+
     const handleResize = () => {
       if (window.innerWidth >= 768) {
         setShowSidebar(true);
       }
     };
-    
+
     window.addEventListener('resize', handleResize);
-    
+
     return () => {
       clearInterval(interval);
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('resize', handleResize);
     };
   }, []);
-
-  const filteredAgents = selectedCategory === 'todos'
-    ? AGENTS.filter(a => a.enabled)
-    : selectedCategory === 'arquitetos'
-    ? AGENTS.filter(a => a.enabled && a.category === 'outros')
-    : AGENTS.filter(a => a.enabled && a.category === selectedCategory);
 
   const getAgentColorClass = (color: Agent['color']) => {
     switch (color) {
@@ -100,20 +88,20 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({
     <div className="flex h-screen w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white overflow-hidden transition-colors">
       {/* Overlay mobile */}
       {showSidebar && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity"
           onClick={() => setShowSidebar(false)}
         />
       )}
-      
-      {/* Sidebar - Mobile drawer */}
+
+      {/* Sidebar */}
       <aside className={`fixed md:static inset-y-0 left-0 w-72 sm:w-64 bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col transition-transform duration-300 ease-in-out z-50 md:z-auto flex-shrink-0 ${showSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
           {/* Logo */}
           <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden flex-shrink-0">
-              <img 
-                src="/images/logo-main.jpg" 
-                alt="Funil ERL Logo" 
+              <img
+                src="/images/logo-main.jpg"
+                alt="Lyla MED Logo"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
@@ -122,10 +110,9 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({
               />
             </div>
             <h1 className="text-lg sm:text-xl font-bold">
-              <span className="text-slate-900 dark:text-white">Funil</span>
-              <span className="text-brand-600 dark:text-brand-400"> ERL</span>
+              <span className="text-slate-900 dark:text-white">Lyla</span>
+              <span className="text-brand-600 dark:text-brand-400"> MED</span>
             </h1>
-            {/* Botão fechar mobile */}
             <button
               onClick={() => setShowSidebar(false)}
               className="ml-auto md:hidden p-2 active:bg-slate-200 dark:active:bg-slate-700 rounded-lg transition-colors touch-manipulation"
@@ -141,73 +128,14 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({
           <nav className="p-2 sm:p-3 space-y-1 overflow-y-auto">
             <button className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 rounded-lg text-left active:bg-brand-100 dark:active:bg-brand-900/30 transition-colors touch-manipulation min-h-[44px]">
               <span className="text-base sm:text-sm">🤖</span>
-              <span className="text-sm font-medium">Agentes</span>
+              <span className="text-sm font-medium">Modos MED</span>
             </button>
-            
-            {/* Novas Funcionalidades */}
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-700 mt-2">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 px-3 uppercase tracking-wide">Ferramentas</p>
-              {onViewDiagnostic && (
-                <button 
-                  onClick={onViewDiagnostic}
-                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
-                >
-                  <span className="text-base sm:text-sm">🔍</span>
-                  <span className="text-sm">Diagnóstico</span>
-                </button>
-              )}
-              {onViewRecommendations && (
-                <button 
-                  onClick={onViewRecommendations}
-                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
-                >
-                  <span className="text-base sm:text-sm">💡</span>
-                  <span className="text-sm">Recomendações</span>
-                </button>
-              )}
-              {onViewFunnel && (
-                <button 
-                  onClick={onViewFunnel}
-                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
-                >
-                  <span className="text-base sm:text-sm">📊</span>
-                  <span className="text-sm">Funil ERL</span>
-                </button>
-              )}
-              {onViewContent && (
-                <button 
-                  onClick={onViewContent}
-                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
-                >
-                  <span className="text-base sm:text-sm">✍️</span>
-                  <span className="text-sm">Gerar Conteúdo</span>
-                </button>
-              )}
-              {onViewSalesScript && (
-                <button 
-                  onClick={onViewSalesScript}
-                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
-                >
-                  <span className="text-base sm:text-sm">📞</span>
-                  <span className="text-sm">Script de Vendas</span>
-                </button>
-              )}
-              {onViewFinancial && (
-                <button 
-                  onClick={onViewFinancial}
-                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
-                >
-                  <span className="text-base sm:text-sm">💰</span>
-                  <span className="text-sm">Simulador Financeiro</span>
-                </button>
-              )}
-            </div>
 
-            {/* Menu Original */}
+            {/* Menu */}
             <div className="pt-2 border-t border-slate-200 dark:border-slate-700 mt-2">
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 px-3 uppercase tracking-wide">Menu</p>
               {onViewPersonalization && (
-                <button 
+                <button
                   onClick={onViewPersonalization}
                   className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
                 >
@@ -216,21 +144,12 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({
                 </button>
               )}
               {onViewTutorials && (
-                <button 
+                <button
                   onClick={onViewTutorials}
                   className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
                 >
                   <span className="text-base sm:text-sm">🎓</span>
                   <span className="text-sm">Tutoriais</span>
-                </button>
-              )}
-              {onViewIdeas && (
-                <button 
-                  onClick={onViewIdeas}
-                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
-                >
-                  <span className="text-base sm:text-sm">👥</span>
-                  <span className="text-sm">Indicações</span>
                 </button>
               )}
             </div>
@@ -263,11 +182,6 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({
                       </div>
                     );
                   })}
-                  {threads.length > 8 && (
-                    <button className="w-full text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-center py-2">
-                      Carregar mais →
-                    </button>
-                  )}
                 </>
               )}
             </div>
@@ -300,153 +214,40 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({
             >
               <span className="text-xl sm:text-lg text-slate-600 dark:text-slate-400">☰</span>
             </button>
-            <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white">Todos os Agentes</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white">Escolha seu Modo</h2>
           </div>
           <ThemeToggle />
         </header>
 
-        {/* Filters */}
-        <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-3 transition-colors overflow-x-auto">
-          <div className="flex gap-2 flex-nowrap sm:flex-wrap min-w-max sm:min-w-0">
-            {CATEGORIES.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-3 py-2.5 sm:py-1.5 rounded-lg text-xs font-medium transition-colors touch-manipulation whitespace-nowrap ${
-                  selectedCategory === category.id
-                    ? 'bg-brand-600 dark:bg-brand-500 text-white'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:bg-slate-200 dark:active:bg-slate-700'
-                }`}
-              >
-                {category.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Agents Grid */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-slate-50 dark:bg-slate-900 transition-colors overscroll-contain min-h-0">
-          {/* Ferramentas Rápidas */}
-          <div className="max-w-7xl mx-auto w-full mb-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Ferramentas Rápidas</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {onViewDiagnostic && (
-                <button
-                  onClick={onViewDiagnostic}
-                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
-                >
-                  <div className="text-2xl mb-2">🔍</div>
-                  <div className="text-xs font-medium text-slate-900 dark:text-white">Diagnóstico</div>
-                </button>
-              )}
-              {onViewRecommendations && (
-                <button
-                  onClick={onViewRecommendations}
-                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
-                >
-                  <div className="text-2xl mb-2">💡</div>
-                  <div className="text-xs font-medium text-slate-900 dark:text-white">Recomendações</div>
-                </button>
-              )}
-              {onViewFunnel && (
-                <button
-                  onClick={onViewFunnel}
-                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
-                >
-                  <div className="text-2xl mb-2">📊</div>
-                  <div className="text-xs font-medium text-slate-900 dark:text-white">Funil ERL</div>
-                </button>
-              )}
-              {onViewContent && (
-                <button
-                  onClick={onViewContent}
-                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
-                >
-                  <div className="text-2xl mb-2">✍️</div>
-                  <div className="text-xs font-medium text-slate-900 dark:text-white">Conteúdo</div>
-                </button>
-              )}
-              {onViewSalesScript && (
-                <button
-                  onClick={onViewSalesScript}
-                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
-                >
-                  <div className="text-2xl mb-2">📞</div>
-                  <div className="text-xs font-medium text-slate-900 dark:text-white">Script</div>
-                </button>
-              )}
-              {onViewFinancial && (
-                <button
-                  onClick={onViewFinancial}
-                  className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 transition-all text-center min-h-[44px]"
-                >
-                  <div className="text-2xl mb-2">💰</div>
-                  <div className="text-xs font-medium text-slate-900 dark:text-white">Simulador</div>
-                </button>
-              )}
-            </div>
-          </div>
+          <div className="max-w-4xl mx-auto w-full">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 text-center">
+              Escolha o modo que resolve seu travamento agora
+            </p>
 
-          {/* Agentes */}
-          <div className="max-w-7xl mx-auto w-full">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Agentes de IA</h3>
-          </div>
-
-          {filteredAgents.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-slate-500 dark:text-slate-400">Nenhum agente encontrado</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 max-w-7xl mx-auto w-full">
-            {filteredAgents.map((agent, index) => (
-              <button
-                key={agent.id}
-                type="button"
-                className="w-full bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 active:border-brand-300 dark:active:border-brand-500 active:shadow-lg dark:active:shadow-xl transition-all text-left touch-manipulation min-h-[44px]"
-                onClick={() => onSelectAgent(agent.id)}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  {index === 0 ? (
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm flex-shrink-0">
-                      <img 
-                        src="/images/logo-main.jpg" 
-                        alt={agent.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const parent = target.parentElement!;
-                          parent.className = `w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${getAgentColorClass(agent.color)} flex items-center justify-center text-xl sm:text-2xl shadow-sm flex-shrink-0`;
-                          parent.textContent = agent.icon;
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${getAgentColorClass(agent.color)} flex items-center justify-center text-xl sm:text-2xl shadow-sm flex-shrink-0`}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {AGENTS.map((agent) => (
+                <button
+                  key={agent.id}
+                  type="button"
+                  className="w-full bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 hover:shadow-lg transition-all text-left touch-manipulation"
+                  onClick={() => onSelectAgent(agent.id)}
+                >
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className={`w-12 h-12 rounded-xl ${getAgentColorClass(agent.color)} flex items-center justify-center text-2xl flex-shrink-0`}>
                       {agent.icon}
                     </div>
-                  )}
-                </div>
-
-                <div>
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {agent.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-xs text-slate-600 dark:text-slate-300 rounded-md"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                    <div>
+                      <h3 className="text-base font-semibold text-slate-900 dark:text-white">{agent.name}</h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{agent.title}</p>
+                    </div>
                   </div>
-                  <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">{agent.name}</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{agent.title}</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{agent.description}</p>
-                </div>
-              </button>
-            ))}
+                  <p className="text-sm text-slate-600 dark:text-slate-300 italic">"{agent.description}"</p>
+                </button>
+              ))}
             </div>
-          )}
+          </div>
         </div>
       </main>
     </div>
@@ -454,4 +255,3 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({
 };
 
 export default AgentsScreen;
-
