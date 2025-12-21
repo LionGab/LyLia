@@ -2,6 +2,13 @@
 // Adicione os emails autorizados aqui
 export const ALLOWED_EMAILS: string[] = [
   'admin@lilia-lainy.com',
-  // Adicione mais emails aqui (até 10 no total)
+  'raylaneedyle@gmail.com',
+  'leilesantos@outlook.com',
+  'janainasants2417@gmail.com',
+  'gabrielaweidy@hotmail.com',
+  'brendagrossi02@gmail.com',
+  'thalliadasilvalopes@gmail.com',
+  'tanianesanta@gmail.com',
+  'aliny3174@gmail.com',
 ];
 
