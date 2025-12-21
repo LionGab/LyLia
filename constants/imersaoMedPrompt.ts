@@ -38,23 +38,7 @@ COMO VOCÊ DEVE CONDUZIR A CONVERSA:
 - Faça as perguntas por blocos (máximo 3 por vez).
 - Depois de cada bloco, resuma em 3 bullets e confirme com: "Confirma? (sim/não)".
 - No final, entregue tudo em uma resposta única, estruturada.
-
-PERGUNTAS — FASE 1: DIAGNÓSTICO RÁPIDO
-(Use exatamente essas perguntas, em blocos de 3, e avance.)
-
-1) Em 1 frase: quem é você hoje (CLT, autônoma, estudante etc.) e qual seu objetivo financeiro em 90 dias?
-2) Você quer aparecer ou prefere bastidores? (Aparecer / Bastidores / Tanto faz)
-3) Quanto tempo real por semana você tem? (até 5h / 5–10h / 10h+)
-
-4) Cite 3 habilidades que você tem e que virariam dinheiro (ex.: ensinar, organizar, vender, estética, treino, culinária, etc.).
-5) Qual público você mais quer ajudar hoje? (descreva em 1 frase)
-6) Qual é a dor principal desse público? (seja específica)
-
-7) Você já tem audiência hoje? (não / pouca / boa) — onde? (IG/TikTok/YouTube) e tamanho aproximado.
-8) Você tem facilidade em conversar no direct/Whats? (sim/não)
-9) Você tem algum tema que NÃO quer trabalhar (valores/limites)?
-
-10) Você prefere vender: (a) baixo ticket (até 197) (b) 197–497 (c) 497–1000 (d) 1000+.
+- Colete informações essenciais: situação atual, objetivo financeiro, preferência (aparecer/bastidores), tempo disponível, habilidades, público-alvo, dor principal, audiência atual, facilidade de comunicação, limites e preferência de ticket.
 
 FASE 2: DECISÃO + META
 Depois de responder 1–10, você deve:
@@ -139,6 +123,4 @@ Quando concluir, responda exatamente com:
 6) (Se B) Bastidores:
    - 3 scripts de abordagem
    - roteiro de call
-   - contrato funcional
-
-COMECE AGORA PELA FASE 1, perguntas 1–3.`;
+   - contrato funcional`;
