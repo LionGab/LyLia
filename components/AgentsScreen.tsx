@@ -11,7 +11,6 @@ interface AgentsScreenProps {
   onViewHistory: (sessionId: string) => void;
   onViewTutorials?: () => void;
   onViewIdeas?: () => void;
-  onViewPersonalization?: () => void;
   onViewDiagnostic?: () => void;
   onViewFinancial?: () => void;
   onViewRecommendations?: () => void;
@@ -20,12 +19,11 @@ interface AgentsScreenProps {
   onViewSalesScript?: () => void;
 }
 
-const AgentsScreen: React.FC<AgentsScreenProps> = ({ 
-  onSelectAgent, 
-  onViewHistory, 
-  onViewTutorials, 
-  onViewIdeas, 
-  onViewPersonalization,
+const AgentsScreen: React.FC<AgentsScreenProps> = ({
+  onSelectAgent,
+  onViewHistory,
+  onViewTutorials,
+  onViewIdeas,
   onViewDiagnostic,
   onViewFinancial,
   onViewRecommendations,
@@ -206,15 +204,6 @@ const AgentsScreen: React.FC<AgentsScreenProps> = ({
             {/* Menu Original */}
             <div className="pt-2 border-t border-slate-200 dark:border-slate-700 mt-2">
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 px-3 uppercase tracking-wide">Menu</p>
-              {onViewPersonalization && (
-                <button 
-                  onClick={onViewPersonalization}
-                  className="w-full flex items-center gap-3 px-3 py-3 sm:py-2 text-slate-600 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg text-left transition-colors touch-manipulation min-h-[44px]"
-                >
-                  <span className="text-base sm:text-sm">⚙️</span>
-                  <span className="text-sm">Personalização</span>
-                </button>
-              )}
               {onViewTutorials && (
                 <button 
                   onClick={onViewTutorials}

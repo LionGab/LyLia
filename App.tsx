@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import LoginScreen from './components/LoginScreen';
 import AgentsScreen from './components/AgentsScreen';
-import OnboardingScreen from './components/OnboardingScreen';
 import TutorialsPanel from './components/TutorialsPanel';
 import BusinessIdeasPanel from './components/BusinessIdeasPanel';
-import PersonalizationPanel from './components/PersonalizationPanel';
 import ConversationsList from './components/ConversationsList';
 import DiagnosticFlow from './components/DiagnosticFlow';
 import FinancialSimulator from './components/FinancialSimulator';
@@ -14,40 +12,28 @@ import FunnelBuilder from './components/FunnelBuilder';
 import ContentGenerator from './components/ContentGenerator';
 import SalesScriptGenerator from './components/SalesScriptGenerator';
 import InstallPrompt from './components/InstallPrompt';
-import { isAuthenticated, getCurrentUser } from './services/authService';
+import { isAuthenticated } from './services/authService';
 import { initTheme } from './services/themeService';
-import { OnboardingData } from './types/onboarding';
 import { DiagnosticResult } from './types/diagnostic';
 import { createThread } from './services/threadService';
 
-type ViewMode = 'agents' | 'chat' | 'tutorials' | 'ideas' | 'personalization' | 'conversations' | 'diagnostic' | 'financial' | 'recommendations' | 'funnel' | 'content' | 'sales-script';
+type ViewMode = 'agents' | 'chat' | 'tutorials' | 'ideas' | 'conversations' | 'diagnostic' | 'financial' | 'recommendations' | 'funnel' | 'content' | 'sales-script';
 
 const App: React.FC = () => {
   const [authenticated, setAuthenticated] = useState<boolean>(false);
   const [isChecking, setIsChecking] = useState<boolean>(true);
   const [currentView, setCurrentView] = useState<ViewMode>('agents');
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
-  const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
   const [currentThreadId, setCurrentThreadId] = useState<string | null>(null);
 
   useEffect(() => {
     // Inicializar tema
     initTheme();
-    
+
     // Verificar autenticação ao carregar
     const checkAuth = () => {
       const authStatus = isAuthenticated();
       setAuthenticated(authStatus);
-      
-      if (authStatus) {
-        // Verificar se já tem onboarding completo
-        const user = getCurrentUser();
-        if (user) {
-          const onboardingData = localStorage.getItem(`erl_lia_onboarding_${user.email}`);
-          setShowOnboarding(!onboardingData);
-        }
-      }
-      
       setIsChecking(false);
     };
 
@@ -56,21 +42,6 @@ const App: React.FC = () => {
 
   const handleLoginSuccess = () => {
     setAuthenticated(true);
-    // Verificar se precisa de onboarding
-    const user = getCurrentUser();
-    if (user) {
-      const onboardingData = localStorage.getItem(`erl_lia_onboarding_${user.email}`);
-      setShowOnboarding(!onboardingData);
-    }
-  };
-
-  const handleOnboardingComplete = (_data: OnboardingData) => {
-    setShowOnboarding(false);
-    // Dados já foram salvos no OnboardingScreen
-  };
-
-  const handleOnboardingSkip = () => {
-    setShowOnboarding(false);
   };
 
   const handleSelectAgent = (agentId: string) => {
@@ -124,10 +95,6 @@ const App: React.FC = () => {
     setCurrentView('ideas');
   };
 
-  const handleViewPersonalization = () => {
-    setCurrentView('personalization');
-  };
-
   const handleViewDiagnostic = () => {
     setCurrentView('diagnostic');
   };
@@ -170,11 +137,6 @@ const App: React.FC = () => {
     return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Mostrar onboarding se necessário
-  if (showOnboarding) {
-    return <OnboardingScreen onComplete={handleOnboardingComplete} onSkip={handleOnboardingSkip} />;
-  }
-
   // Renderizar diferentes views
   if (currentView === 'tutorials') {
     return (
@@ -191,16 +153,6 @@ const App: React.FC = () => {
       <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors">
         <div className="h-screen w-full">
           <BusinessIdeasPanel onBack={handleBackToAgents} />
-        </div>
-      </div>
-    );
-  }
-
-  if (currentView === 'personalization') {
-    return (
-      <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors">
-        <div className="h-screen w-full">
-          <PersonalizationPanel onBack={handleBackToAgents} />
         </div>
       </div>
     );
@@ -258,12 +210,11 @@ const App: React.FC = () => {
     return (
       <>
         <div className="w-full h-screen">
-          <AgentsScreen 
-            onSelectAgent={handleSelectAgent} 
+          <AgentsScreen
+            onSelectAgent={handleSelectAgent}
             onViewHistory={handleViewConversations}
             onViewTutorials={handleViewTutorials}
             onViewIdeas={handleViewIdeas}
-            onViewPersonalization={handleViewPersonalization}
             onViewDiagnostic={handleViewDiagnostic}
             onViewFinancial={handleViewFinancial}
             onViewRecommendations={handleViewRecommendations}
