@@ -263,8 +263,6 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
               className="w-full h-full object-cover scale-125"
             />
           </div>
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Bem-vindo ao Funil ERL</h1>
-          <p className="text-slate-600 dark:text-slate-400">Vamos configurar seu perfil para personalizar sua experiência</p>
           <div className="flex justify-center gap-2 mt-4">
             {[1, 2, 3].map((s) => (
               <div
@@ -282,9 +280,6 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete, onSkip 
         {/* Step 1: Template Selection */}
         {step === 1 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-slate-800 dark:text-white mb-4">
-              Qual tipo de negócio você tem ou quer criar?
-            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {BUSINESS_TEMPLATES.map((template) => (
                 <button
