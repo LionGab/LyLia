@@ -1,4 +1,5 @@
 import {
+  LYLA_MESTRE_MED_PROMPT,
   CLAREZA_MED_PROMPT,
   PRODUTO_MED_PROMPT,
   OFERTA_MED_PROMPT,
@@ -8,6 +9,7 @@ import {
 } from '../constants/medModosPrompts';
 
 export type AgentId =
+  | 'lyla-mestre'
   | 'clareza-med'
   | 'produto-med'
   | 'oferta-med'
@@ -33,6 +35,19 @@ export interface AgentConfig {
 }
 
 export const AGENT_REGISTRY: Record<AgentId, AgentConfig> = {
+  'lyla-mestre': {
+    id: 'lyla-mestre',
+    name: 'LYLA Mestre',
+    title: 'Estratégia Completa A•B•C',
+    description: 'Começar do zero com plano completo em 7 dias',
+    category: 'med',
+    enabled: true,
+    systemPrompt: LYLA_MESTRE_MED_PROMPT,
+    ui: {
+      icon: '🎯',
+      color: 'purple',
+    },
+  },
   'clareza-med': {
     id: 'clareza-med',
     name: 'Clareza MED',
