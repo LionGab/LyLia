@@ -6,6 +6,8 @@ import {
   ROTEIROS_MED_PROMPT,
   BASTIDORES_MED_PROMPT,
   PLANO_MED_PROMPT,
+  IDENTIDADE_PROMPT,
+  MENTE_MILIONARIA_PROMPT,
 } from '../constants/medModosPrompts';
 
 export type AgentId =
@@ -15,7 +17,9 @@ export type AgentId =
   | 'oferta-med'
   | 'roteiros-med'
   | 'bastidores-med'
-  | 'plano-med';
+  | 'plano-med'
+  | 'identidade'
+  | 'mente-milionaria';
 
 export type AgentCategory = 'med';
 export type AgentColor = 'purple' | 'orange' | 'blue' | 'green';
@@ -124,6 +128,32 @@ export const AGENT_REGISTRY: Record<AgentId, AgentConfig> = {
     ui: {
       icon: '📅',
       color: 'orange',
+    },
+  },
+  'identidade': {
+    id: 'identidade',
+    name: 'Arquiteto de Identidade',
+    title: 'Reconstrução de Identidade',
+    description: 'Quero me livrar de rótulos limitantes',
+    category: 'med',
+    enabled: true,
+    systemPrompt: IDENTIDADE_PROMPT,
+    ui: {
+      icon: '🦋',
+      color: 'purple',
+    },
+  },
+  'mente-milionaria': {
+    id: 'mente-milionaria',
+    name: 'Mente Milionária',
+    title: 'Mentalidade Financeira',
+    description: 'Tenho bloqueio com dinheiro',
+    category: 'med',
+    enabled: true,
+    systemPrompt: MENTE_MILIONARIA_PROMPT,
+    ui: {
+      icon: '💰',
+      color: 'green',
     },
   },
 };
